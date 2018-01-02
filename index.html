@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Working with Containers</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="css/linux_1.css">
+  </head>
+  <body>
+  <textarea id="source">
+
+class: center, middle
+
+# Working with Containers
+
+---
+
+# Agenda
+
+1. The problem we're solving
+2. Virtual machines vs containers
+3. History of contaners
+4. Docker vs Singularity
+5. Singularity workflow
+6. Installing and testing Singularity
+7. Writing a Singularity definition file
+8. Using host resources
+9. Distributing Singularity containers
+
+---
+
+class: center, middle
+
+# The Problem
+
+---
+
+# Problem (for developers)
+
+Suppose you're writing some software. It works great on your machine.
+
+However, eventually it has to leave your machine: has to run on your colleague's machine,
+  or deployed in its production environment.
+
+It can be a completely different flavour of OS, with a different set of libraries
+  and supporting tools.
+
+It can be difficult to test if you accounted for all those variation
+  on your own development system. You may have things in your environment
+  you're not even aware of that make a difference.
+
+Your users could also be less technically inclined to deal with dependencies.
+  You may wish to decrease this friction.
+
+---
+
+# Problem (for users)
+
+Suppose you want to run some piece of software.
+
+First-off, you really would like some sort of turn-key solution.
+
+The build instuctions indicate 5-years-old out of date libraries
+  on top of a similarly old OS distribution.
+
+And no, the original developer is most certainly no longer available.
+
+You also don't trust this software fully not to mess up your OS.
+
+Or, you want to run it on a remote server for which you don't
+  even have the privileges to comfortably install all the dependencies.
+
+---
+
+# Problem (for researchers)
+
+Suppose you have a piece of scientific software you used
+  to obtain some result.
+
+Then someone half across the globe tries to reproduce it,
+  and can't get it to run, or worse - is getting different
+  results for the same inputs. What is to blame?
+
+Or, even simpler: your group tries to use your software a couple
+  of years after you left, and nobody can get it to work.
+
+For a reproducible way to do science with the help of software
+  packaging just the source code might not be enough;
+  the environment should also be predictable.
+
+---
+
+# Problem (for server administrators)
+
+Suppose have a hundred of users, each requesting certain software.
+
+Some of it needs to be carefully built from scratch,
+  as there are no prebuilt packages.
+
+Some of the software works with mutually-incompatible library versions.
+  Possibly even known-insecure ones.
+
+Any such software change has to go be injected in
+  a scheduled maintenance window, but users want it yesterday.
+
+And finally, _you most certainly don't_ trust any of this software
+  not to mess up your OS. You've been there before.
+
+---
+
+# What would be a solution?
+
+* A turnkey solution
+
+  A recipe that can build a working instance of your software, reliably and fast.
+
+* BYOE: Bring Your Own Environment
+
+  A way to capture the prerequisites and environment together with the software.
+
+* Mitigate security risks
+
+  Provide a measure of isolation between the software running on a system.
+  No security is perfect, but some is better than none.
+
+---
+
+class: center, middle
+
+# The Solution(s)
+
+---
+
+# Solution: Virtual Machines?
+
+A virtual machine is an isolated instance of a .highlight[whole other "guest" OS] running
+  under your "host" OS.
+
+A .highlight[hypervisor] is responsible for handling the situations where this isolation
+  causes issues for the guest.
+
+From the point of view of the guest, it runs under its own, dedicated hardware.
+  Hence, it's called .highlight[hardware-level virtualization].
+
+Most<sup>*</sup> guest/host OS combinations can run: you can run Windows on Linux,
+Linux on Windows, etc.
+
+------
+
+\* MacOS being a stinker here, of course, with their license.
+
+---
+
+# Virtual Machines: the good parts
+
+* The BYOE principle is fully realized.
+  
+  Whatever your environment is, you can package it fully, OS and everything.
+
+* Security risks are truly minimized.
+
+  Very narrow and secured bridge between the guest and the host means little
+  opportunity for a bad actor to break out of isolation
+
+* Easy to precisely measure out resources.
+
+  The contained application, together with its OS, has restricted access to
+  hardware: you measure out its disk, memory and alloted CPU.
+
+---
+
+# Virtual machines: the not so good parts
+
+* Operational overhead
+
+  For every piece of software, the full underlying OS has to be run.
+
+* Setup overhead
+
+  Starting and stopping a virtual machine is not very fast,
+  and/or requires saving its state.
+
+* Hardware availability
+
+  The isolation between the host and the guest can hinder access to
+    specialized hardware on the host system.
+
+---
+
+# Solution: Containers (on Linux)?
+
+If your host OS is Linux and your software expects Linux, there's
+  a more direct and lightweight way to reach similar goals.
+
+Recent kernel advances allow to isolate processes from the rest
+  of the system, presenting them with their own view of the system.
+
+You can package entire other Linux distributions, and with the exception
+  of the host kernel, all the userland can be different for the process.
+
+From the point of view of the application, it's running on the same hardware
+  as the host, hence containers are called
+  .highlight[operating-system-level virtualization].
+
+---
+
+# Containers: the good parts
+
+* Lower operational overhead
+
+  You don't need to run a whole second OS to run an application.
+
+* Lower startup overhead
+
+  Setup and teardown of a container is much less costly.
+
+* More hardware flexibility
+
+  You don't have to dedicate a set portion of memory to your VM
+    well in advance, or contain your files in a fixed-size filesystem.
+
+  Also, the level of isolation is up to you. You may present devices
+    on the system directly to containers if you so desire.
+
+---
+
+# Containers: the not so good parts
+
+* Kernel compatibility
+
+  Kernel is shared between the host and the container,
+    so there may be some incompatibilties.
+
+  Plus, container support is (relatively) new, so it needs a recent kernel
+    on the host.
+
+* Security concerns
+
+  The isolation is thinner than in VM case, and kernel of the host OS
+    is directly exposed. Other software is isolated at kernel level,
+    but the attack surface is larger.
+
+* Linux on Linux
+
+  Containers are inherently a Linux technology. You need a Linux host
+    (or a Linux VM) to run containers, and only Linux software can run.
+
+
+---
+
+# History of containers
+
+The idea of running an application in a different environment is not new to UNIX-like systems.
+
+Perhaps the first effort in that direction is the `chroot` command and concept (1982):
+  presenting applications with a different view of the filesystem (a different `/`, root directory).
+
+This minimal isolation was improved in in FreeBSD with `jail` (2000),
+  separating other resources (processes, users)
+  and restricting how applications can interact with each other and the kernel.
+
+Linux developed facilities for isolating and controlling access to some processes
+  with namespaces (2002) and cgroups (2007).
+
+Those facilities led to creation of solutions for containerization, notably LXC (2008),
+  Docker (2013) and Singularity (2016).
+
+---
+
+# Docker
+
+Docker came about in 2013 and since has been on a meteoritic rise
+  as a golden standard for containerization technology.
+
+A huge amount of tools is built around Docker to build, run,
+  orchestrate and integrate Docker containers.
+
+Many cloud service providers can directly integrate Docker containers.
+  Docker claims 26x efficiency improvement at cloud scale.
+
+Docker encourages splitting software into microservice chunks
+  that can be portably used as needed.
+
+---
+
+# Docker concerns
+
+Docker uses a pretty complicated model of images/volumes/metadata,
+  orchestrating swarms of those containers to work together,
+  and it not always very transparent with how those are stored.
+
+Also, isolation features require superuser privileges;
+  Docker has a persistent daemon running with those privileges
+  and many container operations require root as well.
+
+Both of those issues make Docker undesirable in applications
+  where you don't wholly own the computing resource - HPC environments.
+
+Out of those concerns, and out of scientific community, came Singularity.
+
+---
+
+# Singularity
+
+Singluarity is quite similar in principles to Docker. In fact,
+  it's pretty straightforward to convert a Docker container
+  to a Singularity image.
+
+Singularity uses a monolithic, image-file based approach.
+  Instead of dynamically overlaid "layers" of Docker, you have
+  a single file you can build once and simply copy over to the target system.
+
+The privilege problem was a concern from the ground-up, and solved by having a
+  `setuid`-enabled binary that can accomplish container startup - and drop
+  privileges completely as soon as practical.
+
+Privilege elevation inside a container is impossible: to be root inside,
+  you have to be root outside. And users don't need explicit root
+  access to operate containers (past, possibly, initial build).
+
+---
+
+# Singularity and HPC
+
+Thanks to the above improvements over Docker, HPC cluster operators
+  are much more welcoming to the idea of Singularity support.
+
+As a result of a joint Pipeline Interoperability project between Swiss Science IT groups,
+  we have a [set of guidelines](https://docs.google.com/document/d/1KIPS8j1IgY5nstQJDDuafFQlw1Spjvo5e6LSLJEBCM4)
+  for Singularity deployment and use by scientific community.
+
+Also as part of this effort, UBELIX will support Singularity
+  in the near future (sadly not yet).
+
+Once your software is packaged in Singularity, it should work across
+  all Science IT platforms supporting the technology.
+
+---
+
+# Singularity workflow
+
+.minusmargin[
+  ![:scale 100%](assets/singularity-workflow.png)
+]
+
+The general idea: prepare container on a local machine with full control,
+  then can execute on a resource without root.
+
+---
+
+# Installing Singularity
+
+Installing Singularity from source is probably preferred,
+  as it's still a relatively new piece of software.
+
+Instructions can be found at http://singularity.lbl.gov/install-linux
+
+On Ubuntu, `build-essential` provides enough prerequisites for compilation.
+
+.exercise[
+  Follow build instructions on your test system. You will need root access!
+]
+
+---
+
+# Using Singularity
+
+If you followed build instructions, you should now have `singularity`
+  available from the shell.
+
+```
+user@host:~$ singularity --version
+2.3.1-dist
+```
+
+The general format of Singularity commands is:
+
+```
+singularity [<global flags>] <command> [<command flags>] [<arguments>]
+```
+
+Singularity is pretty sensitive to the order of those.
+
+Use `singularity help [<command>]` to check built-in help.
+
+You can find the configuration of Singularity under `/usr/local/etc/singularity`
+
+---
+
+# Container images
+
+A Singularity image is, for practical purposes, a filesystem tree
+  that will be presented to the applications running inside it.
+
+A Docker container is built with a series of _layers_ that are
+  stacked upon each other to form the filesystem. Singularity
+  collapses those into a single, portable file.
+
+A container needs to be somehow bootstrapped to contain a base
+  operating system before further modifications can be made.
+
+---
+
+# Pulling Docker images
+
+The simplest way of obtaining a working Singularity image
+  is to pull it from either Dockerhub or Singularity Hub.
+
+Let's try it with CentOS 6:
+
+```
+user@host:~$ singularity pull docker://centos:6
+```
+
+This will download the layers of the Docker container to your
+machine and assemble them into an image.
+
+---
+
+# Pulling Docker images
+
+```
+user@host:~$ singularity pull docker://centos:6
+Initializing Singularity image subsystem
+Opening image file: centos-6.img
+Creating 333MiB image
+Binding image to loop
+Creating file system within image
+Image is done: centos-6.img
+Docker image path: index.docker.io/library/centos:6
+Cache folder set to /home/ubuntu/.singularity/docker
+[1/1] |===================================| 100.0%
+Importing: base Singularity environment
+Importing: /home/ubuntu/.singularity/docker/sha256:cd3b990dbbea1a8de88713ad75b277692a0d5ffe428c342b53d12d6b82f10494.tar.gz
+Importing: /home/ubuntu/.singularity/metadata/sha256:a43b5b7bed1c383b6a89186257392f8630c8c26b5e95f7edf92e4b788a73383e.tar.gz
+Done. Container is at: centos-6.img
+```
+
+Note that this .highlight[does not require `sudo` or Docker]!
+
+.exercise[
+  Pull the CentOS 6 image from Dockerhub with the above command
+]
+
+---
+
+# Entering shell in the container
+
+To test our freshly-created container, we can invoke an interactive shell
+  to explore it with .highlight[`shell`]:
+
+```
+user@host:~$ singularity shell centos-6.img
+Singularity: Invoking an interactive shell within container...
+
+Singularity centos-6.img:~>
+```
+
+At this point, you're within the environment of the container.
+
+We can verify we're "running" CentOS:
+
+```
+Singularity centos-6.img:~> cat /etc/centos-release
+CentOS release 6.9 (Final)
+```
+
+---
+
+# User/group within the container
+
+Inside the container, we are the same user:
+
+```
+Singularity centos-6.img:~> whoami
+user
+```
+
+We will also have the same groups. That way, if any host resources are mounted
+  in the container, we'll have the same access privileges.
+
+If we launched `singularity` with `sudo`, we would be `root` inside the container.
+
+---
+
+# Default mounts
+
+Additionally, our home folder, and the folder we've invoked Singularity from,
+are accessible inside the container (by default):
+```
+Singularity centos-6.img:~> ls ~
+[..lists home folder..]
+```
+
+We have access to the bound folders with the same rights as outside,
+  so we can e.g. write to 
+
+```
+Singularity centos-6.img:~> touch ~/test_container
+Singularity centos-6.img:~> exit
+user@host:~$ ls ~/test_container
+/home/user/test_container
+```
+
+The current working directory inside the container is the same
+  as outside at launch time.
+
+---
+
+# Running a command directly
+
+Besides the interactive shell, we can execute any command
+  inside the container directly with .highlight[`exec`]:
+
+```
+user@host:~$ singularity exec centos-6.img cat /etc/centos-release
+CentOS release 6.9 (Final)
+```
+
+.exercise[
+  Invoke the `python` interpreter with `exec`.
+]
+
+---
+
+# STDIO with container processess
+
+Standard input/output are processed as normal by Singularity.
+You can redirect them:
+
+```
+ubuntu@host:~$ singularity exec centos-6.img echo Boo! > ~/test_container
+ubuntu@host:~$ singularity exec centos-6.img cat < ~/test_container
+Boo!
+```
+
+You can use containers in pipelines:
+
+```
+$ singularity exec centos-6.img echo Boo! | singularity exec centos-6.img cat
+Boo!
+```
+
+.exercise[
+  Count the number of words in host's `ls /etc`'s output using container's copy of `wc`,
+  then the other way around. Hint:
+
+  ```
+  ls /etc | wc -w
+  ```
+]
+
+---
+
+# Modifying the container
+
+In order to modify the container, we need .highlight[`-w` (write access) and root].
+
+```
+user@host:~$ sudo singularity shell -w centos-6.img
+Singularity centos-6.img:~> whoami
+root
+```
+
+Let's get a missing application, `fortune`.
+It's not available in the default distribution,
+we will need to enable a community repository and install it:
+
+```
+Singularity centos-6.img:~> yum -y --enablerepo=extras install epel-release
+Singularity centos-6.img:~> yum -y install fortune-mod
+```
+
+.exercise[
+  Follow those steps, exit the container, and try out `fortune` with `exec`.
+]
+
+---
+
+# Resizing the container
+
+It can happen that the size of the container at creation is insufficient.
+
+If we try to install `vim` in the container, we'll be met with errors:
+
+```
+user@host:~$ sudo singularity exec -w centos-6.img yum install -y vim
+[..output..]
+Error Summary
+-------------
+Disk Requirements:
+  At least 43MB more space needed on the / filesystem.
+```
+
+We can resize the container with .highlight[`expand`]. Let's add 100 MiB:
+```
+user@host:~$ singularity expand --size 100 centos-6.img
+[..output..]
+user@host:~$ sudo singularity exec -w centos-6.img yum install -y vim
+[..output..]
+Complete!
+```
+
+---
+
+# Giving container purpose
+
+A container can have a "default" command which is run without specifying it.
+
+Inside the container, it's `/singularity`. Let's try modifying it:
+
+```
+user@host:~$ sudo singularity exec -w centos-6.img vim /singularity
+```
+
+By default you'll see the following:
+
+```bash
+#!/bin/sh
+
+exec /bin/bash "$@"
+```
+
+This is a script that will pass all arguments to `/bin/bash`.
+
+---
+
+# Giving container purpose
+
+We installed `fortune`, so let's use that instead:
+
+```bash
+#!/bin/sh
+
+exec /usr/bin/fortune "$@"
+```
+
+.exercise[
+  Make the same modification to your container.
+]
+
+Now we can invoke it with .highlight[`run`] or even by
+  .highlight[running the image]:
+
+```
+$ singularity run centos-6.img
+[..some wisdom or humor..]
+$ ./centos-6.img
+[..some more wisdom or humor..]
+```
+
+---
+
+# Making the container reproducible
+
+Instead of taking some base image and making changes to it by hand,
+  we want to make this build process reproducible.
+
+This is achieved with .highlight[definition files].
+
+Let's try to retrace out steps to obtain a fortune-telling CentOS.
+
+.exercise[
+  Open a file called `fortune.def` in an editor, and prepare to copy along
+]
+
+---
+
+# Bootstrapping
+
+The definition file starts with a header section.
+
+The key part of it is the `Bootstrap:` configuration.
+
+There are 2 currently types of bootstrap methods:
+
+* using `yum`/`apt`/`pacman` on the host system to bootstrap a similar one
+* pull a Docker image
+
+We'll be using the Docker method.
+
+```
+Bootstrap: docker
+From: centos:6
+```
+
+---
+
+# Setting up the container
+
+There are 2 sections for setup commands (essentially shell scripts):
+
+1. .highlight[`%setup`] for commands to be executed .highlight[outside the container].
+
+  You can use `$SINGULARITY_ROOTFS` to access the container's filesystem,
+    as it is mounted on the host during the build.
+
+2. .highlight[`%post`] for commands to be executed .highlight[inside] the container.
+
+  This is a good place to set up the OS, such as installing packages.
+
+---
+
+# Setting up the container
+
+Let's save the name of the build host and install `fortune`:
+
+```
+Bootstrap: docker
+From: centos:6
+
+%setup
+  hostname -f > $SINGULARITY_ROOTFS/etc/build_host
+
+%post
+  yum -y --enablerepo=extras install epel-release
+  yum -y install fortune-mod
+```
+
+---
+
+# Adding files to the container
+
+An additional section, .highlight[`%files`], allows to copy files or folders to the container.
+
+We won't be using it here, but the format is as follows (like `cp`, but destination is inside):
+
+```
+%files
+  some/file /some/other/file some/path/
+  some/directory some/path/
+```
+
+Note that this happens _after_ `%post`. If you need the files earlier, copy them manually in `%setup`.
+
+---
+
+# Setting up the environment
+
+You can specify a script to be sourced when something is run in the container.
+
+This goes to the .highlight[`%environment`] section. Treat it like `.bash_profile`.
+
+```
+%environment
+  export HELLO=World
+```
+
+Note that the host environment variables are passed on by default as well, unless `-e` is specified.
+
+---
+
+# Setting up the runscript
+
+The runscript (`/singularity`) is specified in the `%runscript` section.
+
+Let's use the file we copied at `%setup` and run `fortune`:
+
+```
+%runscript
+  read host < /etc/build_host
+  echo "Hello, $HELLO! Fortune Teller, built by $host"
+  exec /usr/bin/fortune "$@"
+```
+
+---
+
+# Testing the built image
+
+You can specify commands to be run at the end of the build process inside the container
+  to perform sanity checks.
+
+Use `%test` section for this:
+
+```
+%test
+  test -f /etc/build_host
+  test -f /usr/bin/fortune
+```
+
+All commands must return successfully or the build will fail.
+
+---
+
+# The whole definition file
+
+```
+Bootstrap: docker
+From: centos:6
+
+%setup
+  hostname -f > $SINGULARITY_ROOTFS/etc/build_host
+%post
+  yum -y --enablerepo=extras install epel-release
+  yum -y install fortune-mod
+%environment
+  export HELLO="World"
+%runscript
+  read host < /etc/build_host
+  echo "Hello, $HELLO! Fortune Teller, built by $host"
+  exec /usr/bin/fortune "$@"
+%test
+  test -f /etc/build_host
+  test -f /usr/bin/fortune
+```
+
+.exercise[
+  Check that your `fortune.def` is the same as above.
+]
+
+---
+
+# Building a container from definition
+
+To fill a container using a definition file, we must first .highlight[create] it.
+
+This is the time to specify the image size:
+
+```
+user@host:~$ singularity create -s 512 fortune.img
+```
+
+Then, .highlight[bootstrap] using the definition (.highlight[requires root]):
+
+```
+user@host:~$ sudo singularity bootstrap fortune.img fortune.def
+```
+
+.exercise[
+1. Bootstrap the image as shown above.
+
+2. Test running it directly.
+]
+
+---
+
+# Host resources
+
+A Singularity container can have more host resources exposed.
+
+For providing access to more directories,
+  one can specify bind options at runtime with `-B`:
+
+```
+-B source[:destination[:mode]]
+```
+
+where .highlight[source] is the path on the host,
+  .highlight[destination] is the path in a container (if different)
+  and .highlight[mode] is optionally `ro` if you don't want to give write access.
+
+Additionally, devices on the host can be exposed, e.g. the GPU; but you need to make
+  sure that the guest has the appropriate drivers. One solution is to bind the drivers on the container.
+
+OpenMPI should also work, provided the libraries on the host and in the container are sufficiently close.
+
+---
+
+# Fuller isolation
+
+By default, a container is allowed a lot of "windows" into the host system (dictated by Singularity configuration).
+
+For an untrusted container, you can further restrict this with options like `--contain`, `--containall`.
+
+In this case, you have to manually define where standard binds like the home folder or `/tmp` point.
+
+See `singularity help run` for more information.
+
+---
+
+# Distributing the container
+
+Using the container after creation on another Linux machine is simple:
+  you simply copy the image file there.
+
+Note that you can't just run the image file on a host without Singularity installed!
+
+.exercise[
+  Test the above, by trying to run `fortune.img` inside itself.
+]
+
+You can easily integrate Singularity with the usual scheduler scripts (e.g. Slurm).
+
+---
+
+# Using Singularity Hub
+
+Singularity Hub allows you to cloud-build your containers from Bootstrap files,
+  which you can then simply `pull` on a target host.
+
+This requires a GitHub repository with a `Singularity` definition file.
+
+After creating an account and connecting to the GitHub account,
+  you can select a repository and branches to be built.
+
+Afterwards, you can pull the result:
+
+```
+$ singularity pull shub://kav2k/fortune
+$ ./kav2k-fortune-master.img
+Hello, World! Fortune Teller, built by shub-builder-103338658-2826.c.srcc-gcp-ruth-will-phs-testing.internal
+```
+
+---
+
+# Docker and Singularity
+
+Instead of writing a Singularity file, you may write a `Dockerfile`,
+  build a Docker container and convert that.
+
+Pros:
+
+* More portable: for some, using Docker or some other container solution is preferable.
+
+* Easier private hosting: Singularity Hub doesn't seem to currently support private instances.
+
+Cons:
+
+* Blackbox: Singularity understands less about the build process, in terms of container metadata.
+
+* Complexity: Another tool to learn if you don't know Docker already.
+
+---
+
+# Docker -> Singularity
+
+If you have a Docker image you want to convert to Singularity,
+  you have at least two options:
+
+1. Upload the image to a Docker Registry (such as Docker Hub)
+  and `pull` from there.
+
+2. Convert locally with Docker and `docker2singularity`
+  https://github.com/singularityware/docker2singularity
+
+---
+
+# Runner script
+
+We have developed a small runner script that allows to specify
+  a lot of "external" metadata (like bind commands or image size)
+  in a single configuration file alongside other bootstrap files,
+  as well as scripts to run on the host to run/validate the container.
+
+You can install it with `pip install singularity-pipeline`
+
+Documentation and samples available at https://c4science.ch/diffusion/2915/browse/master/UniBe/
+
+Consider it still in alpha, but it helps writing down the metadata
+  for a scientific pipeline.
+
+  </textarea>
+  <script src="js/vendor/remark.min.js"></script>
+  <script src="js/vendor/jquery-3.2.1.min.js"></script>
+  <script src="js/terminal.language.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/linux_1.js"></script>
+  </body>
+</html>

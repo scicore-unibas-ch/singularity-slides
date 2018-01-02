@@ -1,0 +1,130 @@
+@import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+@import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+@import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+body { font-family: 'Droid Serif'; }
+h1, h2, h3 {
+  font-family: 'Yanone Kaffeesatz';
+  font-weight: normal;
+}
+.remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+
+.remark-code-line .hljs-constant { color: #5BFF68 }
+
+.remark-slide-content { font-size: 24px; }
+
+table.stack {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: auto;
+}
+
+.stack tr td:first-child {
+  border: 1px black solid;
+  height: 3em;
+  width: 60%;
+}
+
+.stack .bluebg {
+  background: SkyBlue
+}
+
+table.quiz {
+  width: 100%;
+  margin: auto;
+}
+
+.quiz td {
+  border: 1px black solid;
+}
+
+.quiz .clicked.Y {
+  background: #CCFFCC;
+}
+
+.quiz .clicked.N {
+  background: #FFCCCC;
+}
+
+
+.two-columns table {
+  table-layout: fixed;
+}
+
+.two-columns td {
+  width: 50%;
+}
+
+.mnemonic {
+  border: 1px solid firebrick;
+  border-radius: 0.3em;
+  margin-bottom: 0.5em;
+}
+
+.mnemonic::before {
+  content: "Mnemonic:";
+  margin-left: 0.25em;
+  font-style: italic;
+  color: firebrick; 
+}
+
+.mnemonic p {
+  margin: 0.5em;
+}
+
+.exercise {
+  border: 1px solid blue;
+  border-radius: 0.3em;
+  margin-bottom: 0.5em;
+}
+
+.exercise::before {
+  content: "Exercise:";
+  margin-left: 0.25em;
+  font-style: italic;
+  color: blue; 
+}
+
+.exercise p {
+  margin: 0.5em;
+}
+
+.highlight {
+  color: red;
+  font-weight: bold;
+}
+
+.middle img {
+  vertical-align: middle;
+}
+
+.small {
+  font-size: smaller;
+}
+
+.minusmargin {
+  margin-left: -10%;
+  margin-right: -10%;
+}
+
+div.blinking {
+  -webkit-animation: 1s blink step-end infinite;
+  -moz-animation: 1s blink step-end infinite;
+  -ms-animation: 1s blink step-end infinite;
+  -o-animation: 1s blink step-end infinite;
+  animation: 1s blink step-end infinite;
+  display: inline-block;
+}
+
+@-webkit-keyframes blink {
+  0% { opacity: 1.0; }
+  50% { opacity: 0.0; }
+  100% { opacity: 1.0; }
+}
+
+@keyframes blink {
+  0% { opacity: 1.0; }
+  50% { opacity: 0.0; }
+  100% { opacity: 1.0; }
+}
