@@ -243,22 +243,25 @@ From the point of view of the application, it's running on the same hardware
 
 # Containers: the good parts
 
-* Lower operational overhead
+* Lower operational overhead. You don't need to run a whole second OS to run an application.
 
-  You don't need to run a whole second OS to run an application.
+* Lower startup overhead. Setup and teardown of a container is much less costly.
 
-* Lower startup overhead
+* More hardware flexibility. You don't have to dedicate a set portion of memory to your VM
+well in advance, or contain your files in a fixed-size filesystem.  Also, the level of isolation is up to you. 
+You may present devices on the system directly to containers if you so desire. e.g. GPUs
 
-  Setup and teardown of a container is much less costly.
+* Integration with HPC schedulers is trivial
 
-* More hardware flexibility
+---
 
-  You don't have to dedicate a set portion of memory to your VM
-    well in advance, or contain your files in a fixed-size filesystem.
+class: center, middle
 
-  Also, the level of isolation is up to you. You may present devices
-    on the system directly to containers if you so desire.
+### Performance benchmark: Singularity VS Docker VS native
 
+![:scale 70%](img/singularity_docker_benchmark.jpg) 
+
+.footnote[https://twitter.com/ljdursi/status/827186459975286787]
 ---
 
 # Containers: the not so good parts
