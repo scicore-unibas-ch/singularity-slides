@@ -16,21 +16,59 @@ class: center, middle
 
 # Agenda
 
-1. The problem we're solving
-2. Virtual machines vs containers
-3. History of containers
-4. Docker vs Singularity
-5. Singularity workflow
-6. Installing and testing Singularity
-7. Writing a Singularity definition file
-8. Using host resources
-9. Distributing Singularity containers
+1. Tutorial intro
+2. The problem we're solving
+3. Virtual machines vs containers
+4. History of containers
+5. Docker vs Singularity
+6. Singularity workflow
+7. Installing and testing Singularity
+8. Writing a Singularity definition file
+9. Using host resources
+10. Distributing Singularity containers
+
+
+---
+
+  ## Audience
+
+Researchers/Developers willing to learn how to package their applications and workflows using Singularity containers
+
+---
+
+  ## Objective
+
+- Explain the basics technical concepts about containers
+
+- Differences between Virtual Machines and containers. Pros and Cons
+
+- Differences between Docker and Singularity. Pros and Cons
+
+- Learn how to use Singularity
+
+  - Execute Singularity containers
+  - Create Singularity containers from scratch
+  - Share Singularity containers
+
+---
+  
+  ## Requirements to follow the course
+
+- Your laptop with:
+
+  - [Vagrant](https://www.vagrantup.com)
+
+  - [VirtualBox](https://www.virtualbox.org/)
+
+  - SSH client and a sciCORE cluster account
+
+- Linux shell knowledge
 
 ---
 
 class: center, middle
 
-# The Problem
+# The Problem(s)
 
 ---
 
@@ -52,6 +90,7 @@ Your users could also be less technically inclined to deal with dependencies.
   You may wish to decrease this friction.
 
 ---
+
 
 # Problem (for users)
 
@@ -170,19 +209,18 @@ Linux on Windows, etc.
 
 # Virtual machines: the not so good parts
 
-* Operational overhead
+* Operational overhead. For every piece of software, the full underlying OS has to be run.
 
-  For every piece of software, the full underlying OS has to be run.
-
-* Setup overhead
-
-  Starting and stopping a virtual machine is not very fast,
+* Setup overhead.  Starting and stopping a virtual machine is not very fast,
   and/or requires saving its state.
 
-* Hardware availability
+* Hardware availability. The isolation between the host and the guest can hinder access to
+    specialized hardware on the host system. e.g. GPUs
 
-  The isolation between the host and the guest can hinder access to
-    specialized hardware on the host system.
+* Very little chance that you get a hypervisor (Xen, KVM, VirtualBox) installed
+in your HPC cluster. 
+
+* No integration with HPC schedulers (Slurm, SGE..)
 
 ---
 
