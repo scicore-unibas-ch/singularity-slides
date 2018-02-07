@@ -342,7 +342,7 @@ Out of those concerns, and out of scientific community, came Singularity.
 
 # Singularity
 
-Singluarity is quite similar in principles to Docker. In fact,
+.small[Singularity is quite similar in principles to Docker. In fact,
   it's pretty straightforward to convert a Docker container
   to a Singularity image.
 
@@ -356,7 +356,7 @@ The privilege problem was a concern from the ground-up, and solved by having a
 
 Privilege elevation inside a Singularity container is impossible (in theory ;): to be root inside,
   you have to be root outside. And users don't need explicit root
-  access to operate existing containers (required for initial build)
+  access to operate existing containers (required for initial build)]
 
 ---
 
@@ -372,12 +372,21 @@ Once your software is packaged in Singularity, it should work across
 
 # Singularity workflow
 
-.minusmargin[
-  ![:scale 100%](img/singularity-2.4-flow.png)
-]
+.center[![:scale 100%](img/singularity-2.4-flow.png)]
 
-The general idea: prepare container on a local machine with full control,
-  then you can move it to the cluster to run it without root.
+.small[The general idea: prepare container on a local machine with full control,
+  then you can move it to the cluster to run it without root. You can use scp or upload it to a containers registry.
+
+If the container image is aleady available in any public registry like [docker hub](https://hub.docker.com/)
+or [singularity hub](https://singularity-hub.org/) you can directly download the container
+to the cluster as a regular user.]
+
+---
+
+## Running your first container in the cluster
+
+```terminal
+ssh user@scicore-cluster
 
 ---
 
