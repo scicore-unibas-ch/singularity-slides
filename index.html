@@ -365,13 +365,6 @@ Privilege elevation inside a Singularity container is impossible (in theory ;): 
 Thanks to the above improvements over Docker, HPC cluster operators
   are much more welcoming to the idea of Singularity support.
 
-As a result of a joint Pipeline Interoperability project between Swiss Science IT groups,
-  we have a [set of guidelines](https://docs.google.com/document/d/1KIPS8j1IgY5nstQJDDuafFQlw1Spjvo5e6LSLJEBCM4)
-  for Singularity deployment and use by scientific community.
-
-Also as part of this effort, UBELIX will support Singularity
-  in the near future (sadly not yet).
-
 Once your software is packaged in Singularity, it should work across
   all Science IT platforms supporting the technology.
 
@@ -380,27 +373,68 @@ Once your software is packaged in Singularity, it should work across
 # Singularity workflow
 
 .minusmargin[
-  ![:scale 100%](assets/singularity-workflow.png)
+  ![:scale 100%](img/singularity-2.4-flow.png)
 ]
 
 The general idea: prepare container on a local machine with full control,
-  then can execute on a resource without root.
+  then you can move it to the cluster to run it without root.
 
 ---
 
-# Installing Singularity
+## Installing Singularity in your laptop
 
-Installing Singularity from source is probably preferred,
-  as it's still a relatively new piece of software.
+First boot a Ubuntu16.04 VM and test that you can ssh to it and become root
 
-Instructions can be found at http://singularity.lbl.gov/install-linux
+```terminal
+user@laptop ~]$ mkdir singularity-vm
 
-On Ubuntu, `build-essential` provides enough prerequisites for compilation.
+user@laptop ~]$ cd singularity-vm
 
-.exercise[
-  Follow build instructions on your test system. You will need root access!
-]
+user@laptop ~]$ vagrant init ubuntu/xenial64
 
+user@laptop ~]$ vagrant up
+
+user@laptop ~]$ vagrant ssh
+
+[vagrant@vm ~]$ sudo -s
+
+[root@vm ~]# id
+uid=0(root) gid=0(root)
+
+[root@vm ~]# exit
+
+[vagrant@vm ~]$ exit
+
+[user@laptop ~]$
+
+
+```
+
+---
+
+## Installing Singularity in your laptop
+
+Copy&Paste this in your laptop's terminal to install singularity in the VM
+
+```terminal
+user@laptop ~]$ vagrant ssh -c /bin/bash <<EOF
+    sudo apt-get update
+    sudo apt-get -y install build-essential curl git sudo man vim autoconf libtool emacs-nox python
+    mkdir ~/src/
+    cd ~/src/ && wget https://github.com/singularityware/singularity/archive/2.4.tar.gz
+    tar xvf 2.4.tar.gz
+    cd singularity-2.4/
+    ./autogen.sh
+    ./configure --prefix=/usr/local
+    make
+    sudo make install
+EOF
+```
+```terminal
+user@laptop ~]$ vagrant ssh
+vagrant@vm ~]$ singularity --version
+2.4-dist
+```
 ---
 
 # Using Singularity
