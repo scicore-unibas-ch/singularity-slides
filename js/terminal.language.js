@@ -10,7 +10,11 @@ hljs.registerLanguage('terminal', function() {
     contains: [
       {
         className: 'string',
-        begin: '^(([\\w.]+)@([\\w.]+)\\:(\\S+) ?)?\\$'
+        begin: '^(([\\w.]+)@([\\w.]+)\\:(\\S+) ?)?\\$|^(([\\w.]+)@([\\w.]+)\\:(\\S+) ?)?\\#'
+      },
+      {
+        className: 'type',
+        begin: '^Singularity (\\S+)\\:(\\S+)>'
       },
       /*{
         className: 'constant',
