@@ -383,38 +383,6 @@ to the cluster as a regular user.]
 
 ---
 
-## Running your first container in the cluster
-
-```terminal
-user@laptop:~$ ssh user@scicore-cluster
-
-user@cluster:~$ ml Singularity/2.4
-
-user@cluster:~$ singularity pull docker://biocontainers/samtools
-Docker image path: index.docker.io/biocontainers/samtools:latest
-Importing: base Singularity environment
-Building Singularity image...
-Singularity container built: ./samtools.img
-
-user@scluster:~$ singularity run samtools.img 
-Program: samtools (Tools for alignments in the SAM format)
-Version: 1.3.1 (using htslib 1.3.1)
-
-user@cluster:~$ singularity exec samtools.img  cat /etc/debian_version
-stretch/sid
-
-user@cluster:~$ singularity shell samtools.img
-Singularity samtools.img:~> ls $HOME
-Singularity samtools.img:~> id
-Singularity samtools.img:~> exit
-
-user@cluster:~$ 
-
-
-```
-
----
-
 ### Installing Singularity in your laptop
 
 .small[In fact we are installing Singularity inside a VirtualBox VM running in your laptop
@@ -449,47 +417,41 @@ user@laptop:~$
 
 ## Installing Singularity in your laptop
 
-.small[Copy&Paste this in your laptop's terminal to install singularity in the VM]
+Copy&Paste this in your laptop's terminal to install singularity in the VM
 
 ```terminal
 user@laptop:~$ vagrant ssh -c /bin/bash <<EOF
     sudo apt-get update
-    sudo apt-get -y install build-essential curl git sudo man vim autoconf libtool emacs-nox python
-    mkdir ~/src/
-    cd ~/src/ && wget https://github.com/singularityware/singularity/archive/2.4.tar.gz
+    sudo apt-get -y install build-essential squashfs-tools curl git sudo man \
+    vim autoconf libtool emacs24-nox python bash-completion 
+    mkdir ~/src/ && cd ~/src/
+    wget https://github.com/singularityware/singularity/archive/2.4.tar.gz
     tar xvf 2.4.tar.gz
     cd singularity-2.4/
     ./autogen.sh
     ./configure --prefix=/usr/local
     make
     sudo make install
+    sudo ln -s /usr/local/etc/bash_completion.d/singularity /etc/profile.d/singularity
 EOF
 ```
 
-.small[Now connect to the VM and verify that Singularity is installed]
-
-```terminal
-user@laptop:~$ vagrant ssh
-
-vagrant@vm:~$ singularity --version
-2.4-dist
-```
 ---
 
 # Using Singularity
 
 If you followed build instructions, you should now have `singularity`
-  available from the shell.
+  available in your VM.
 
 ```
-user@host:~$ singularity --version
-2.3.1-dist
+vagrant@vm:~$ singularity --version
+2.4-dist
 ```
 
 The general format of Singularity commands is:
 
 ```
-singularity [<global flags>] <command> [<command flags>] [<arguments>]
+singularity [global options...] <command> [command options...] ...
 ```
 
 Singularity is pretty sensitive to the order of those.
@@ -514,26 +476,75 @@ A container needs to be somehow bootstrapped to contain a base
 
 ---
 
-# Pulling Docker images
+## Running a pre-build image from docker hub
 
-The simplest way of obtaining a working Singularity image
-  is to pull it from either Dockerhub or Singularity Hub.
+```terminal
+user@laptop:~$ vagrant ssh
 
-Let's try it with CentOS 6:
+vagrant@vm:~$ singularity pull docker://biocontainers/samtools
+Docker image path: index.docker.io/biocontainers/samtools:latest
+Importing: base Singularity environment
+Building Singularity image...
+Singularity container built: ./samtools.img
 
+vagrant@vm:~$ singularity run samtools.img 
+Program: samtools (Tools for alignments in the SAM format)
+Version: 1.3.1 (using htslib 1.3.1)
+
+vagrant@vm:~$ singularity exec samtools.img  cat /etc/debian_version
+stretch/sid
+
+vagrant@vm:~$ singularity shell samtools.img
+Singularity samtools.img:~> ls $HOME
+Singularity samtools.img:~> id
+Singularity samtools.img:~> exit
+
+vagrant@vm:~$ 
 ```
-user@host:~$ singularity pull docker://centos:6
-```
 
-This will download the layers of the Docker container to your
+.small[This will download the layers of the Docker container to your
 machine and assemble them into an image.
 
+Note that this .highlight[does not require `sudo` or Docker]!]
 ---
 
-# Pulling Docker images
+## Running a prebuilt-image in the sciCORE cluster
+
+```terminal
+user@laptop:~$ ssh user@scicore-cluster
+
+user@cluster:~$ ml Singularity/2.4
+
+user@cluster:~$ singularity pull docker://biocontainers/samtools
+Docker image path: index.docker.io/biocontainers/samtools:latest
+Importing: base Singularity environment
+Building Singularity image...
+Singularity container built: ./samtools.img
+
+user@scluster:~$ singularity run samtools.img 
+Program: samtools (Tools for alignments in the SAM format)
+Version: 1.3.1 (using htslib 1.3.1)
+
+user@cluster:~$ singularity exec samtools.img  cat /etc/debian_version
+stretch/sid
+
+user@cluster:~$ singularity shell samtools.img
+Singularity samtools.img:~> ls $HOME
+Singularity samtools.img:~> id
+Singularity samtools.img:~> exit
+
+user@cluster:~$ 
+```
+---
+
+## Pulling a pre-built Docker image to test the basic functionality of Singularity
+
+We will do this exercise in the VM:
 
 ```
-user@host:~$ singularity pull docker://centos:6
+user@laptop:~$ vagrant ssh
+
+vagrant@vm:~$ singularity pull docker://centos:6
 Initializing Singularity image subsystem
 Opening image file: centos-6.img
 Creating 333MiB image
@@ -548,13 +559,6 @@ Importing: /home/ubuntu/.singularity/docker/sha256:cd3b990dbbea1a8de88713ad75b27
 Importing: /home/ubuntu/.singularity/metadata/sha256:a43b5b7bed1c383b6a89186257392f8630c8c26b5e95f7edf92e4b788a73383e.tar.gz
 Done. Container is at: centos-6.img
 ```
-
-Note that this .highlight[does not require `sudo` or Docker]!
-
-.exercise[
-  Pull the CentOS 6 image from Dockerhub with the above command
-]
-
 ---
 
 # Entering shell in the container
@@ -562,8 +566,8 @@ Note that this .highlight[does not require `sudo` or Docker]!
 To test our freshly-created container, we can invoke an interactive shell
   to explore it with .highlight[`shell`]:
 
-```
-user@host:~$ singularity shell centos-6.img
+```terminal
+vagrant@vm:~$ singularity shell centos-6.img
 Singularity: Invoking an interactive shell within container...
 
 Singularity centos-6.img:~>
@@ -573,7 +577,7 @@ At this point, you're within the environment of the container.
 
 We can verify we're "running" CentOS:
 
-```
+```terminal
 Singularity centos-6.img:~> cat /etc/centos-release
 CentOS release 6.9 (Final)
 ```
@@ -584,7 +588,7 @@ CentOS release 6.9 (Final)
 
 Inside the container, we are the same user:
 
-```
+```terminal
 Singularity centos-6.img:~> whoami
 user
 ```
@@ -611,8 +615,8 @@ We have access to the bound folders with the same rights as outside,
 ```
 Singularity centos-6.img:~> touch ~/test_container
 Singularity centos-6.img:~> exit
-user@host:~$ ls ~/test_container
-/home/user/test_container
+vagrant@vm:~$ ls ~/test_container
+/home/vagrant/test_container
 ```
 
 The current working directory inside the container is the same
@@ -626,7 +630,7 @@ Besides the interactive shell, we can execute any command
   inside the container directly with .highlight[`exec`]:
 
 ```
-user@host:~$ singularity exec centos-6.img cat /etc/centos-release
+vagrant@vm:~$ singularity exec centos-6.img cat /etc/centos-release
 CentOS release 6.9 (Final)
 ```
 
@@ -642,8 +646,8 @@ Standard input/output are processed as normal by Singularity.
 You can redirect them:
 
 ```
-ubuntu@host:~$ singularity exec centos-6.img echo Boo! > ~/test_container
-ubuntu@host:~$ singularity exec centos-6.img cat < ~/test_container
+vagrant@vm:~$ singularity exec centos-6.img echo Boo! > ~/test_container
+vagrant@vm:~$ singularity exec centos-6.img cat < ~/test_container
 Boo!
 ```
 
@@ -665,13 +669,15 @@ Boo!
 
 ---
 
-# Modifying the container
+## Create a writable singularity image for development
 
-In order to modify the container, we need .highlight[`-w` (write access) and root].
+.small[First create an empty image 2048MB in size initialize it with a centos7 docker image
 
 ```
-user@host:~$ sudo singularity shell -w centos-6.img
-Singularity centos-6.img:~> whoami
+vagrant@vm:~$ sudo singularity image.create --size 2048 --writable centos7.img
+vagrant@vm:~$ sudo singularity build --writable centos7.img docker://centos:7
+vagrant@vm:~$ sudo singularity shell --writable centos7.img
+Singularity centos7.img:~> whoami
 root
 ```
 
@@ -680,40 +686,15 @@ It's not available in the default distribution,
 we will need to enable a community repository and install it:
 
 ```
-Singularity centos-6.img:~> yum -y --enablerepo=extras install epel-release
-Singularity centos-6.img:~> yum -y install fortune-mod
+Singularity centos7.img:~> yum -y --enablerepo=extras install epel-release
+Singularity centos7.img:~> yum -y install fortune-mod
 ```
 
 .exercise[
   Follow those steps, exit the container, and try out `fortune` with `exec`.
 ]
 
----
-
-# Resizing the container
-
-It can happen that the size of the container at creation is insufficient.
-
-If we try to install `vim` in the container, we'll be met with errors:
-
-```
-user@host:~$ sudo singularity exec -w centos-6.img yum install -y vim
-[..output..]
-Error Summary
--------------
-Disk Requirements:
-  At least 43MB more space needed on the / filesystem.
-```
-
-We can resize the container with .highlight[`expand`]. Let's add 100 MiB:
-```
-user@host:~$ singularity expand --size 100 centos-6.img
-[..output..]
-user@host:~$ sudo singularity exec -w centos-6.img yum install -y vim
-[..output..]
-Complete!
-```
-
+]
 ---
 
 # Giving container purpose
