@@ -381,9 +381,12 @@ The general idea: prepare container on a local machine with full control,
 
 ---
 
-## Installing Singularity in your laptop
+### Installing Singularity in your laptop
+
+.small[In fact we are installing Singularity inside a VirtualBox VM running in your laptop
 
 First boot a Ubuntu16.04 VM and test that you can ssh to it and become root
+]
 
 ```terminal
 user@laptop ~]$ mkdir singularity-vm
@@ -406,15 +409,13 @@ uid=0(root) gid=0(root)
 [vagrant@vm ~]$ exit
 
 [user@laptop ~]$
-
-
 ```
 
 ---
 
 ## Installing Singularity in your laptop
 
-Copy&Paste this in your laptop's terminal to install singularity in the VM
+.small[Copy&Paste this in your laptop's terminal to install singularity in the VM]
 
 ```terminal
 user@laptop ~]$ vagrant ssh -c /bin/bash <<EOF
@@ -430,6 +431,9 @@ user@laptop ~]$ vagrant ssh -c /bin/bash <<EOF
     sudo make install
 EOF
 ```
+
+.small[Now connect to the VM and verify that Singularity is installed]
+
 ```terminal
 user@laptop ~]$ vagrant ssh
 vagrant@vm ~]$ singularity --version
