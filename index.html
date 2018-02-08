@@ -444,6 +444,7 @@ If you followed build instructions, you should now have `singularity`
   available in your VM.
 
 ```
+user@laptop:~$ vagrant ssh
 vagrant@vm:~$ singularity --version
 2.4-dist
 ```
@@ -474,7 +475,7 @@ A Docker container is built with a series of _layers_ that are
 A container needs to be somehow bootstrapped to contain a base
   operating system before further modifications can be made.
 
----
+<!--
 
 ## Running a pre-build image from docker hub
 
@@ -506,8 +507,9 @@ vagrant@vm:~$
 machine and assemble them into an image.
 
 Note that this .highlight[does not require `sudo` or Docker]!]
----
+-->
 
+<!--
 ## Running a prebuilt-image in the sciCORE cluster
 
 ```terminal
@@ -535,30 +537,39 @@ Singularity samtools.img:~> exit
 
 user@cluster:~$ 
 ```
+-->
 ---
 
-## Pulling a pre-built Docker image to test the basic functionality of Singularity
+
+### Pulling a pre-built Docker image to test the basic functionality of Singularity
 
 We will do this exercise in the VM:
 
-```
+.small[```terminal
 user@laptop:~$ vagrant ssh
 
 vagrant@vm:~$ singularity pull docker://centos:6
-Initializing Singularity image subsystem
-Opening image file: centos-6.img
-Creating 333MiB image
-Binding image to loop
-Creating file system within image
-Image is done: centos-6.img
+WARNING: pull for Docker Hub is not guaranteed to produce the
+WARNING: same image on repeated pull. Use Singularity Registry
+WARNING: (shub://) to pull exactly equivalent images.
 Docker image path: index.docker.io/library/centos:6
-Cache folder set to /home/ubuntu/.singularity/docker
-[1/1] |===================================| 100.0%
+Cache folder set to /home/vagrant/.singularity/docker
+[1/1] |===================================| 100.0% 
 Importing: base Singularity environment
-Importing: /home/ubuntu/.singularity/docker/sha256:cd3b990dbbea1a8de88713ad75b277692a0d5ffe428c342b53d12d6b82f10494.tar.gz
-Importing: /home/ubuntu/.singularity/metadata/sha256:a43b5b7bed1c383b6a89186257392f8630c8c26b5e95f7edf92e4b788a73383e.tar.gz
-Done. Container is at: centos-6.img
+Importing: /home/vagrant/.singularity/docker/sha256:ca9499a209fd9abe7f919a5c99989fd26d3410164e499fe577be504341f0a352.tar.gz
+Importing: /home/vagrant/.singularity/metadata/sha256:b4d98049dd466efa5cfbf4b07aa672ced350fdbec3cd2faa139b194623df29ef.tar.gz
+WARNING: Building container as an unprivileged user. If you run this container as root
+WARNING: it may be missing some functionality.
+Building Singularity image...
+Singularity container built: ./centos-6.img
+Cleaning up...
 ```
+]
+
+.small[This will download the layers of the Docker container to your
+machine and assemble them into an image.
+
+Note that this .highlight[does not require `sudo` or Docker]!]
 ---
 
 # Entering shell in the container
@@ -590,7 +601,7 @@ Inside the container, we are the same user:
 
 ```terminal
 Singularity centos-6.img:~> whoami
-user
+vagrant
 ```
 
 We will also have the same groups. That way, if any host resources are mounted
@@ -606,7 +617,7 @@ Additionally, our home folder, and the folder we've invoked Singularity from,
 are accessible inside the container (by default):
 ```
 Singularity centos-6.img:~> ls ~
-[..lists home folder..]
+centos-6.img  src
 ```
 
 We have access to the bound folders with the same rights as outside,
@@ -671,10 +682,10 @@ Boo!
 
 ## Create a writable singularity image for development
 
-.small[First create an empty image 2048MB in size initialize it with a centos7 docker image
+.small[First create an [empty writable image](http://singularity.lbl.gov/docs-build-container#--writable) 2048MB in size and initialize it with a centos7 docker image
 
 ```
-vagrant@vm:~$ sudo singularity image.create --size 2048 --writable centos7.img
+vagrant@vm:~$ sudo singularity image.create --size 2048 centos7.img
 vagrant@vm:~$ sudo singularity build --writable centos7.img docker://centos:7
 vagrant@vm:~$ sudo singularity shell --writable centos7.img
 Singularity centos7.img:~> whoami
@@ -697,6 +708,30 @@ Singularity centos7.img:~> yum -y install fortune-mod
 ]
 ---
 
+## Create a sandbox environment for development
+
+Another approach is to create a [sandbox](http://singularity.lbl.gov/docs-build-container#--sandbox) for development.
+
+A [sandbox](http://singularity.lbl.gov/docs-build-container#--sandbox) is just a plain folder which contains all the files of the container.
+
+One of the advantages of this approach is that you don't need to define a fixed size in advance.
+
+```terminal
+vagrant@vm:~$ sudo singularity build --sandbox centos7_sandbox docker://centos:7
+
+vagrant@vm:~$ ls centos7_sandbox/
+
+vagrant@vm:~$ sudo singularity shell --writable centos7_sandbox/
+
+Singularity centos7_sandbox:~> whoami
+root
+
+Singularity centos7_sandbox:~> cat /etc/redhat-release 
+CentOS Linux release 7.4.1708 (Core)
+```
+
+---
+
 # Giving container purpose
 
 A container can have a "default" command which is run without specifying it.
@@ -704,7 +739,7 @@ A container can have a "default" command which is run without specifying it.
 Inside the container, it's `/singularity`. Let's try modifying it:
 
 ```
-user@host:~$ sudo singularity exec -w centos-6.img vim /singularity
+vagrant@vm:~$ sudo singularity exec -w centos7.img vi /singularity
 ```
 
 By default you'll see the following:
@@ -712,10 +747,10 @@ By default you'll see the following:
 ```bash
 #!/bin/sh
 
-exec /bin/bash "$@"
+exec /bin/bash
 ```
 
-This is a script that will pass all arguments to `/bin/bash`.
+This is a script that will execute `/bin/bash`.
 
 ---
 
@@ -737,9 +772,9 @@ Now we can invoke it with .highlight[`run`] or even by
   .highlight[running the image]:
 
 ```
-$ singularity run centos-6.img
+$ singularity run centos7.img
 [..some wisdom or humor..]
-$ ./centos-6.img
+$ ./centos7.img
 [..some more wisdom or humor..]
 ```
 
@@ -750,7 +785,7 @@ $ ./centos-6.img
 Instead of taking some base image and making changes to it by hand,
   we want to make this build process reproducible.
 
-This is achieved with .highlight[definition files].
+This is achieved with [singularity recipes](http://singularity.lbl.gov/docs-recipes)
 
 Let's try to retrace out steps to obtain a fortune-telling CentOS.
 
@@ -762,7 +797,7 @@ Let's try to retrace out steps to obtain a fortune-telling CentOS.
 
 # Bootstrapping
 
-The definition file starts with a header section.
+The definition file starts with a [header section](http://singularity.lbl.gov/docs-recipes#header).
 
 The key part of it is the `Bootstrap:` configuration.
 
@@ -775,7 +810,7 @@ We'll be using the Docker method.
 
 ```
 Bootstrap: docker
-From: centos:6
+From: centos:7
 ```
 
 ---
@@ -784,12 +819,12 @@ From: centos:6
 
 There are 2 sections for setup commands (essentially shell scripts):
 
-1. .highlight[`%setup`] for commands to be executed .highlight[outside the container].
+1. [setup](http://singularity.lbl.gov/docs-recipes#setup) for commands to be executed .highlight[outside the container].
 
   You can use `$SINGULARITY_ROOTFS` to access the container's filesystem,
     as it is mounted on the host during the build.
 
-2. .highlight[`%post`] for commands to be executed .highlight[inside] the container.
+2. [post](http://singularity.lbl.gov/docs-recipes#post) for commands to be executed .highlight[inside] the container.
 
   This is a good place to set up the OS, such as installing packages.
 
@@ -797,11 +832,13 @@ There are 2 sections for setup commands (essentially shell scripts):
 
 # Setting up the container
 
-Let's save the name of the build host and install `fortune`:
+Let's save the name of the build host and install `fortune`.
+
+Write this to your file `fortune.def`
 
 ```
 Bootstrap: docker
-From: centos:6
+From: centos:7
 
 %setup
   hostname -f > $SINGULARITY_ROOTFS/etc/build_host
@@ -815,7 +852,7 @@ From: centos:6
 
 # Adding files to the container
 
-An additional section, .highlight[`%files`], allows to copy files or folders to the container.
+An additional section, [files](http://singularity.lbl.gov/docs-recipes#files), allows to copy files or folders to the container.
 
 We won't be using it here, but the format is as follows (like `cp`, but destination is inside):
 
@@ -833,7 +870,7 @@ Note that this happens _after_ `%post`. If you need the files earlier, copy them
 
 You can specify a script to be sourced when something is run in the container.
 
-This goes to the .highlight[`%environment`] section. Treat it like `.bash_profile`.
+This goes to the [environment section](http://singularity.lbl.gov/docs-recipes#environment). Treat it like `.bash_profile`.
 
 ```
 %environment
@@ -846,7 +883,7 @@ Note that the host environment variables are passed on by default as well, unles
 
 # Setting up the runscript
 
-The runscript (`/singularity`) is specified in the `%runscript` section.
+The runscript (`/singularity`) is specified in the [runscript](http://singularity.lbl.gov/docs-recipes#runscript) section.
 
 Let's use the file we copied at `%setup` and run `fortune`:
 
@@ -864,7 +901,7 @@ Let's use the file we copied at `%setup` and run `fortune`:
 You can specify commands to be run at the end of the build process inside the container
   to perform sanity checks.
 
-Use `%test` section for this:
+Use [test](http://singularity.lbl.gov/docs-recipes#test) section for this:
 
 ```
 %test
@@ -880,7 +917,7 @@ All commands must return successfully or the build will fail.
 
 ```
 Bootstrap: docker
-From: centos:6
+From: centos:7
 
 %setup
   hostname -f > $SINGULARITY_ROOTFS/etc/build_host
