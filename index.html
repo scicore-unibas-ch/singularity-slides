@@ -949,23 +949,16 @@ From: centos:7
 
 ---
 
-# Building a container from definition
+# Building a container from definition file
 
-To build a container using a definition file, we must first create an empty image.
-
-
-```
-vagrant@vm:~$ sudo singularity image.create --size 2048 fortune.img
-```
-
-Then [build](http://singularity.lbl.gov/docs-build-container) the container using the definition (.highlight[requires root]):
+[build](http://singularity.lbl.gov/docs-build-container) the container using the definition (.highlight[requires root]):
 
 ```
 vagrant@vm:~$ sudo singularity build fortune.img fortune.def
 ```
 
 .exercise[
-1. Bootstrap the image as shown above.
+1. Create the container as shown above.
 
 2. Test running it directly.
 ]
