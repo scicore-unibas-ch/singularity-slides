@@ -756,7 +756,7 @@ This is a script that will execute `/bin/bash`.
 
 # Giving container purpose
 
-We installed `fortune`, so let's use that instead:
+We installed `fortune`, so let's use that instead by modifying `/singularity` like this:
 
 ```bash
 #!/bin/sh
@@ -1033,7 +1033,7 @@ Note that you can't just run the image file on a host without Singularity instal
 
 # Using Singularity Hub
 
-Singularity Hub allows you to cloud-build your containers from Bootstrap files,
+.small[[Singularity Hub](https://singularity-hub.org/) allows you to cloud-build your containers from Bootstrap files,
   which you can then simply `pull` on a target host.
 
 This requires a GitHub repository with a `Singularity` definition file.
@@ -1048,9 +1048,11 @@ $ singularity pull shub://kav2k/fortune
 $ ./kav2k-fortune-master.img
 Hello, World! Fortune Teller, built by shub-builder-103338658-2826.c.srcc-gcp-ruth-will-phs-testing.internal
 ```
+You can check the [official docs](https://github.com/singularityhub/singularityhub.github.io/wiki/Build-A-Container)
+to learn how to upload your images to the official Singularity hub
 
-You can also host your private [singularity registry](https://github.com/singularityhub/sregistry)
-
+You can also host your private [singularity hub](https://github.com/singularityhub/sregistry)
+]
 ---
 
 # Docker and Singularity
