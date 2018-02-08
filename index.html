@@ -834,7 +834,6 @@ There are 2 sections for setup commands (essentially shell scripts):
 
 Let's save the name of the build host and install `fortune`.
 
-Write this to your file `fortune.def`
 
 ```
 Bootstrap: docker
@@ -921,15 +920,19 @@ From: centos:7
 
 %setup
   hostname -f > $SINGULARITY_ROOTFS/etc/build_host
+
 %post
   yum -y --enablerepo=extras install epel-release
   yum -y install fortune-mod
+
 %environment
   export HELLO="World"
+
 %runscript
   read host < /etc/build_host
   echo "Hello, $HELLO! Fortune Teller, built by $host"
   exec /usr/bin/fortune "$@"
+
 %test
   test -f /etc/build_host
   test -f /usr/bin/fortune
@@ -943,18 +946,17 @@ From: centos:7
 
 # Building a container from definition
 
-To fill a container using a definition file, we must first .highlight[create] it.
+To build a container using a definition file, we must first create an empty image.
 
-This is the time to specify the image size:
-
-```
-user@host:~$ singularity create -s 512 fortune.img
-```
-
-Then, .highlight[bootstrap] using the definition (.highlight[requires root]):
 
 ```
-user@host:~$ sudo singularity bootstrap fortune.img fortune.def
+vagrant@vm:~$ sudo singularity image.create --size 2048 fortune.img
+```
+
+Then [build](http://singularity.lbl.gov/docs-build-container) the container using the definition (.highlight[requires root]):
+
+```
+vagrant@vm:~$ sudo singularity build fortune.img fortune.def
 ```
 
 .exercise[
@@ -999,6 +1001,26 @@ See `singularity help run` for more information.
 
 ---
 
+# Integration with Slurm (or other schedulers)
+
+This is an example of how a slurm submit script could look like
+
+```bash
+#!/bin/bash
+
+#SBATCH --job-name=using-containers
+#SBATCH --time=02:00:00
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=10G
+
+module load Singularity/2.4
+
+singularity exec pipeline2.img samtools view -bS output/bowtie2/yeast_reseq_ds-bt2aln.sam | singularity exec pipeline2.img samtools sort - --threads ${SLURM_CPUS_PER_TASK} -o output/samtools/yeast_reseq_ds-bt2aln.s.bam
+
+```
+
+---
+
 # Distributing the container
 
 Using the container after creation on another Linux machine is simple:
@@ -1006,11 +1028,6 @@ Using the container after creation on another Linux machine is simple:
 
 Note that you can't just run the image file on a host without Singularity installed!
 
-.exercise[
-  Test the above, by trying to run `fortune.img` inside itself.
-]
-
-You can easily integrate Singularity with the usual scheduler scripts (e.g. Slurm).
 
 ---
 
@@ -1032,6 +1049,8 @@ $ ./kav2k-fortune-master.img
 Hello, World! Fortune Teller, built by shub-builder-103338658-2826.c.srcc-gcp-ruth-will-phs-testing.internal
 ```
 
+You can also host your private [singularity registry](https://github.com/singularityhub/sregistry)
+
 ---
 
 # Docker and Singularity
@@ -1042,8 +1061,6 @@ Instead of writing a Singularity file, you may write a `Dockerfile`,
 Pros:
 
 * More portable: for some, using Docker or some other container solution is preferable.
-
-* Easier private hosting: Singularity Hub doesn't seem to currently support private instances.
 
 Cons:
 
