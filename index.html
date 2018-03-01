@@ -621,7 +621,7 @@ user@cluster:~$
 We will do this exercise in the VM:
 
 .small[```terminal
-user@laptop:~$ vagrant ssh
+user@laptop:~/singularity-vm$ vagrant ssh
 
 vagrant@vm:~$ singularity pull docker://centos:6
 WARNING: pull for Docker Hub is not guaranteed to produce the
@@ -679,10 +679,17 @@ Singularity centos-6.img:~> whoami
 vagrant
 ```
 
-We will also have the same groups. That way, if any host resources are mounted
-  in the container, we'll have the same access privileges.
+.small[We will also have the same groups. That way, if any host resources are mounted
+in the container, we'll have the same access privileges. Also you will have 
+access from outside the container to files generated inside the container. As you can 
+imagine this is quite convenient when using Singularity in an HPC cluster.
+
+One of the biggest problems when working with Docker is dealing with different uids
+inside and outside the container but this is "automagically" solved by singularity
+so you don't need to worry about it
 
 If we launched `singularity` with `sudo`, we would be `root` inside the container.
+]
 
 ---
 
@@ -752,6 +759,33 @@ Boo!
   ls /etc | wc -w
   ```
 ]
+
+---
+
+## STDIO with containers. A real world example
+
+This is a sample from a Slurm submit script: 
+
+```bash
+#!/bin/bash
+
+#SBATCH --job-name=pipeline2-containers
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=10G
+#SBATCH --output=containers.log
+
+module load Singularity/2.4
+
+RefGenome='~/scicore-pipeline2-input-data/RefGenome/igenomes/Saccharomyces_cerevisiae/Ensembl/R64-1-1/Sequence/'
+
+echo 'SAM to sorted BAM...'
+singularity exec pipeline2.img samtools view -bS output/bowtie2/yeast_reseq_ds-bt2aln.sam | singularity exec pipeline2.img samtools sort - --threads ${SLURM_CPUS_PER_TASK} -o output/samtools/yeast_reseq_ds-bt2aln.s.bam
+
+echo 'calling variants with FreeBayes...'
+singularity exec pipeline2.img freebayes -f $RefGenome/WholeGenomeFasta/genome.fa output/samtools/yeast_reseq_ds-bt2aln.s.bam > output/freebayes/yeast_reseq_ds-bt2aln.s.vcf
+
+```
+
 
 ---
 
