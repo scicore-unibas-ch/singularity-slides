@@ -68,6 +68,9 @@ Researchers/Developers willing to learn how to package their applications and wo
 
 - Linux shell knowledge
 
+- If you are using a Window laptop you also need [MobaXterm](https://mobaxterm.mobatek.net/download-home-edition.html)
+  to have a bash shell
+
 ---
 
 class: center, middle
@@ -329,7 +332,7 @@ Also, isolation features require superuser privileges;
 Docker is mainly designed and used to run [microservices](https://en.wikipedia.org/wiki/Microservices) like web servers, databases,
  mail servers...etc
 
-Both of those issues make Docker undesirable in multi-user and shared HPC environments.
+Both of those issues make Docker undesirable in multi-user, shared HPC environments.
 
 Out of those concerns, and out of scientific community, came Singularity.
 
@@ -413,13 +416,42 @@ user@scicore:~$ sacct -j 86720  -o State,ExitCode,Elapsed,MaxRSS
 
 If you upload the container image to a registry like [docker hub](https://hub.docker.com/)
 , [singularity hub](https://singularity-hub.org/) or a private registry you can directly download the container
-to the cluster as a regular user.]
+to the cluster as a regular user.
+]
 
 ---
 
 # Singularity workflow
 
-![:scale 100%](img/singularity_workflow.jpg) 
+![:scale 100%](img/singularity_workflow.jpg)
+
+---
+
+### Some notes about the shell exercises
+
+.small[Every shell prompt is in format:]
+
+  USER @ MACHINE: WORKING_DIR
+
+.small[ Some examples:]
+
+
+.small[Username "user" in machine "laptop" in folder "~"]
+```terminal
+user@laptop:~$ mkdir ~/singularity-vm
+```
+.small[Username "vagrant" in machine "vm" (virtual machine) in folder "~"]
+```terminal
+vagrant@vm:~$ id
+```
+
+.small[Username "root" in machine "vm" in folder "~/singularity-vm"]
+```terminal
+root@vm:~/singularity-vm# 
+
+```
+.small[p.d. ~ means $HOME]
+
 
 ---
 
