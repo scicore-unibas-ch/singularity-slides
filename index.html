@@ -381,6 +381,29 @@ class: center, middle
 .footnote[https://twitter.com/ljdursi/status/827186459975286787]
 ---
 
+## Performance comparison native VS singularity in the sciCORE cluster
+
+### NGS pipeline without containers
+```terminal
+user@scicore:~$ sacct -j 86719  -o State,ExitCode,Elapsed,MaxRSS
+ 
+     State ExitCode  Elapsed     MaxRSS
+---------- --------  ---------- ----------
+ COMPLETED      0:0  00:55:47           
+ COMPLETED      0:0  00:55:47   31754776K (31.754776GB)
+```
+
+### NGS pipeline using Singularity containers
+```terminal
+user@scicore:~$ sacct -j 86720  -o State,ExitCode,Elapsed,MaxRSS
+ 
+     State ExitCode   Elapsed     MaxRSS
+---------- --------  ----------  ----------
+ COMPLETED      0:0  00:58:46           
+ COMPLETED      0:0  00:58:46    31755136K (31.755136GB)
+```
+---
+
 # Singularity workflow
 
 .center[![:scale 100%](img/singularity-2.4-flow.png)]
@@ -455,7 +478,7 @@ user@laptop:~/singularity-vm$ ls ~/singularity-vm
 dummy2.file  dummy.file  ubuntu-xenial-16.04-cloudimg-console.log  Vagrantfile
 ```
 
-.small[We will use this to easily copy files from/to the VM to the laptop
+.small[We will use this to copy files from/to the VM to the laptop
 
 We can also use it to edit the files inside the VM with our preferred editor running in our laptop]
 
@@ -493,7 +516,10 @@ If you followed build instructions, you should now have `singularity`
   available in your VM.
 
 ```
-user@laptop:~$ vagrant ssh
+user@laptop:~$ cd ~/singularity-vm/
+
+user@laptop:~/singularity-vm$ vagrant ssh
+
 vagrant@vm:~$ singularity --version
 2.4-dist
 ```
