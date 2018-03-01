@@ -402,21 +402,23 @@ to the cluster as a regular user.]
 
 ### Installing Singularity in your laptop
 
-.small[In fact we are installing Singularity inside a VirtualBox VM running in your laptop
+.small[In fact we are installing Singularity inside a VirtualBox VM running in your laptop.
+  First boot a Ubuntu16.04 VM and test that you can ssh to it and become root]
 
-First boot a Ubuntu16.04 VM and test that you can ssh to it and become root
-]
 
 ```terminal
-user@laptop:~$ mkdir singularity-vm
+user@laptop:~$ mkdir ~/singularity-vm
 
-user@laptop:~$ cd singularity-vm
+user@laptop:~$ cd ~/singularity-vm
 
-user@laptop:~$ vagrant init ubuntu/xenial64
+user@laptop:~/singularity-vm$ vagrant init ubuntu/xenial64
 
-user@laptop:~$ vagrant up
+user@laptop:~/singularity-vm$ vagrant up
 
-user@laptop:~$ vagrant ssh
+user@laptop:~/singularity-vm$ vagrant ssh
+
+vagrant@vm:~$ id
+uid=1000(vagrant) gid=1000(vagrant) groups=1000(vagrant)
 
 vagrant@vm:~$ sudo -s
 
@@ -427,8 +429,36 @@ root@vm:~# exit
 
 vagrant@vm:~$ exit
 
-user@laptop:~$
+user@laptop:~/singularity-vm$
 ```
+---
+
+## Installing Singularity in your laptop
+
+Verify that the folder /vagrant inside the VM is mapped to the local folder ~/singularity-vm in your laptop 
+
+```terminal
+user@laptop:~$ cd ~/singularity-vm
+
+user@laptop:~/singularity-vm$ touch ~/singularity-vm/dummy.file
+
+user@laptop:~/singularity-vm$ vagrant ssh
+
+vagrant@vm:~$ ls /vagrant
+Vagrantfile  dummy.file  ubuntu-xenial-16.04-cloudimg-console.log
+
+vagrant@vm:~$ touch /vagrant/dummy2.file
+
+vagrant@vm:~$ exit
+
+user@laptop:~/singularity-vm$ ls ~/singularity-vm
+dummy2.file  dummy.file  ubuntu-xenial-16.04-cloudimg-console.log  Vagrantfile
+```
+
+.small[We will use this to easily copy files from/to the VM to the laptop
+
+We can also use it to edit the files inside the VM with our preferred editor running in our laptop]
+
 
 ---
 
@@ -437,7 +467,9 @@ user@laptop:~$
 Copy&Paste this in your laptop's terminal to install singularity in the VM
 
 ```terminal
-user@laptop:~$ vagrant ssh -c /bin/bash <<EOF
+user@laptop:~$ cd ~/singularity-vm/
+
+user@laptop:~/singularity-vm$ vagrant ssh -c /bin/bash <<EOF
     sudo apt-get update
     sudo apt-get -y install build-essential squashfs-tools curl git sudo man \
     vim autoconf libtool emacs24-nox python bash-completion 
