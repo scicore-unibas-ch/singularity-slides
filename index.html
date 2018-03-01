@@ -323,7 +323,8 @@ Docker uses a pretty complicated model of images/volumes/metadata,
 
 Also, isolation features require superuser privileges;
   Docker has a persistent daemon running with those privileges
-  and many container operations require root as well.
+  and many container operations require root as well. In practice,
+  a user who can run docker containers can get root access.
 
 Docker is mainly designed and used to run [microservices](https://en.wikipedia.org/wiki/Microservices) like web servers, databases,
  mail servers...etc
@@ -350,11 +351,18 @@ The privilege problem was a concern from the ground-up, and solved by having a
 
 Privilege elevation inside a Singularity container is impossible (in theory ;): to be root inside,
   you have to be root outside. And users don't need explicit root
-  access to operate existing containers (required for initial build)]
+  access to operate existing containers]
+
 
 ---
 
 # Singularity and HPC
+
+root is only required for initial build of the container but you can do this in a virtual machine
+  (as we will do in this course) and then move the container to your HPC cluster
+
+If the container is already available in a registry (containers repository) you can directly
+  download it to your HPC cluster without root permissions.
 
 Thanks to the above improvements over Docker, HPC cluster operators
   are much more welcoming to the idea of Singularity support.
@@ -383,6 +391,12 @@ class: center, middle
 If you upload the container image to a registry like [docker hub](https://hub.docker.com/)
 , [singularity hub](https://singularity-hub.org/) or a private registry you can directly download the container
 to the cluster as a regular user.]
+
+---
+
+# Singularity workflow
+
+![:scale 100%](img/singularity_workflow.jpg) 
 
 ---
 
