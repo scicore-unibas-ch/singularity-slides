@@ -309,7 +309,6 @@ A huge amount of tools is built around Docker to build, run,
   orchestrate and integrate Docker containers.
 
 Many cloud service providers can directly integrate Docker containers.
-  Docker claims 26x efficiency improvement at cloud scale.
 
 Docker encourages splitting software into microservice chunks
   that can be portably used as needed.
@@ -326,11 +325,10 @@ Also, isolation features require superuser privileges;
   Docker has a persistent daemon running with those privileges
   and many container operations require root as well.
 
-Docker is mainly designed to run services like web servers, databases,
+Docker is mainly designed and used to run (microservices)[https://en.wikipedia.org/wiki/Microservices] like web servers, databases,
  mail servers...etc
 
-Both of those issues make Docker undesirable in applications
-  where you don't wholly own the computing resource - HPC environments.
+Both of those issues make Docker undesirable in multi-user and shared HPC environments.
 
 Out of those concerns, and out of scientific community, came Singularity.
 
