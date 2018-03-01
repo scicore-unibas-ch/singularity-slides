@@ -841,7 +841,7 @@ CentOS Linux release 7.4.1708 (Core)
 
 ---
 
-# Giving container purpose
+# Giving a purpose to the container
 
 A container can have a "default" command which is run without specifying it.
 
@@ -863,7 +863,7 @@ This is a script that will execute `/bin/bash`.
 
 ---
 
-# Giving container purpose
+# Giving a purpose to the container
 
 We installed `fortune`, so let's use that instead by modifying `/singularity` like this:
 
@@ -880,10 +880,11 @@ exec /usr/bin/fortune "$@"
 Now we can invoke it with .highlight[`run`] or even by
   .highlight[running the image]:
 
-```
-$ singularity run centos7.img
+```terminal
+vagrant@vm:~$ singularity run centos7.img
 [..some wisdom or humor..]
-$ ./centos7.img
+
+vagrant@vm:~$ ./centos7.img
 [..some more wisdom or humor..]
 ```
 
@@ -899,7 +900,7 @@ This is achieved with [singularity recipes](http://singularity.lbl.gov/docs-reci
 Let's try to retrace out steps to obtain a fortune-telling CentOS.
 
 .exercise[
-  Open a file called `fortune.def` in an editor, and prepare to copy along
+  Open a file called "fortune.def" in an editor, and prepare to copy along
 ]
 
 ---
@@ -985,7 +986,11 @@ This goes to the [environment section](http://singularity.lbl.gov/docs-recipes#e
   export HELLO=World
 ```
 
+All the environment is defined in profile files in folder `/.singularity.d/env/` inside the container.
+
 Note that the host environment variables are passed on by default as well, unless `-e` is specified.
+
+.small[Feel free to explore the contents of folder `/.singularity.d/` ;)]
 
 ---
 
@@ -1084,10 +1089,9 @@ where .highlight[source] is the path on the host,
   .highlight[destination] is the path in a container (if different)
   and .highlight[mode] is optionally `ro` if you don't want to give write access.
 
-Additionally, devices on the host can be exposed, e.g. the GPU; but you need to make
-  sure that the guest has the appropriate drivers. One solution is to bind the drivers on the container.
+Additionally, devices on the host can be exposed, e.g. the [GPU](http://singularity.lbl.gov/faq#does-singularity-support-containers-that-require-gpus)
 
-OpenMPI should also work, provided the libraries on the host and in the container are sufficiently close.
+OpenMPI should also [work](http://singularity.lbl.gov/faq#can-i-containerize-my-mpi-application-with-singularity-and-run-it-properly-on-an-hpc-system)
 
 ---
 
