@@ -1116,7 +1116,7 @@ Download this Singularity [definition file](https://git.scicore.unibas.ch/escoba
 
 ---
 
-# Host resources
+## Host resources
 
 A Singularity container can have more host resources exposed.
 
@@ -1130,6 +1130,9 @@ For providing access to more directories,
 where .highlight[source] is the path on the host,
   .highlight[destination] is the path in a container (if different)
   and .highlight[mode] is optionally `ro` if you don't want to give write access.
+
+Sysadmins can define default mounts in the global singularity config file
+(e.g. always mount /local_scratch to /tmp inside the container)
 
 Additionally, devices on the host can be exposed, e.g. the [GPU](http://singularity.lbl.gov/faq#does-singularity-support-containers-that-require-gpus)
 
@@ -1219,6 +1222,19 @@ and modify it so "singularity apps" lists the available applications in the cont
 
 ---
 
+# Singularity Instances
+
+Singularity 2.4 introduces the ability to run [container instances](http://singularity.lbl.gov/docs-instances),
+allowing you to run services (e.g. Nginx, MySQL, etc…) using Singularity.
+
+.exercise[
+Read the docs about [Singularity instances](http://singularity.lbl.gov/docs-instances#container-instances-in-singularity)
+and do the [hello world](http://singularity.lbl.gov/docs-instances#nginx-hello-world-in-singularity) exercise to boot an 
+Nginx webserver with Singularity.
+]
+
+---
+
 
 # Distributing the container
 
@@ -1298,12 +1314,58 @@ If you have a Docker image you want to convert to Singularity,
 
 2. Convert locally with Docker and `docker2singularity`
   https://github.com/singularityware/docker2singularity
+  https://hub.docker.com/r/vanessa/singularity/
+
+Another work in progress:
+
+[https://github.com/dctrud/docker2singularity-go](https://github.com/dctrud/docker2singularity-go)
 
 ---
 
-# Other interesting topics
 
-[Reproducible SCI-F Apps](http://singularity.lbl.gov/docs-scif-apps)
+# More examples
+
+## Using Conda inside Singularity 
+
+Check this Singularity [definition file](https://git.scicore.unibas.ch/escobar/singularity-examples/blob/master/singularity_conda.def)
+
+.exercise[
+  Download and build the Singularity/Conda container
+]
+
+.exercise[
+  Extend the container to install some of your preferred bioinfo tools from [BioConda](https://bioconda.github.io/)
+]
+---
+
+# More examples 
+
+## Using EasyBuild inside Singularity
+
+[EasyBuild](https://easybuilders.github.io/easybuild/) is a tool to build scientific software. 
+Building your software inside a Singularity container you can keep full control about what 
+dependencies your tool is using.
+
+See an example container [here](https://github.com/pescobar/singularity-easybuild)
+
+optional exercise: Build this container and use EasyBuild inside the container to build and application
+
+---
+
+# More examples
+
+###Some other interesting tutorials online:
+
+Another intro to Singularity
+
+[https://singularity-tutorial.github.io/](https://singularity-tutorial.github.io/)
+
+
+Tutorial using Singularity, SCIF and SnakeMake
+
+[https://sci-f.github.io/snakemake.scif/](https://sci-f.github.io/snakemake.scif/)
+
+
 
 
   </textarea>
