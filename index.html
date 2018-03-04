@@ -375,15 +375,6 @@ Once your software is packaged in Singularity, it should work across
 
 ---
 
-class: center, middle
-
-### Performance benchmark: Singularity VS Docker VS native
-
-![:scale 70%](img/singularity_docker_benchmark.jpg) 
-
-.footnote[https://twitter.com/ljdursi/status/827186459975286787]
----
-
 ### Performance comparison: native VS singularity in the sciCORE cluster
 
 ### NGS pipeline without containers
@@ -405,6 +396,15 @@ user@scicore:~$ sacct -j 86720  -o State,ExitCode,Elapsed,MaxRSS
  COMPLETED      0:0  00:58:46           
  COMPLETED      0:0  00:58:46    31755136K (31.755136GB)
 ```
+---
+
+class: center, middle
+
+### Performance benchmark: Singularity VS Docker VS native
+
+![:scale 70%](img/singularity_docker_benchmark.jpg) 
+
+.footnote[https://twitter.com/ljdursi/status/827186459975286787]
 ---
 
 
@@ -1116,6 +1116,40 @@ Download this Singularity [definition file](https://git.scicore.unibas.ch/escoba
 
 ---
 
+# Host resources
+
+A Singularity container can have more host resources exposed.
+
+For providing access to more directories,
+  one can specify bind options at runtime with `-B`:
+
+```
+-B source[:destination[:mode]]
+```
+
+where .highlight[source] is the path on the host,
+  .highlight[destination] is the path in a container (if different)
+  and .highlight[mode] is optionally `ro` if you don't want to give write access.
+
+Additionally, devices on the host can be exposed, e.g. the [GPU](http://singularity.lbl.gov/faq#does-singularity-support-containers-that-require-gpus)
+
+OpenMPI should also work. [Check official docs](http://singularity.lbl.gov/faq#can-i-containerize-my-mpi-application-with-singularity-and-run-it-properly-on-an-hpc-system)
+
+---
+
+
+# Fuller isolation
+
+By default, a container is allowed a lot of "windows" into the host system (dictated by Singularity configuration).
+
+For an untrusted container, you can further restrict this with options like `--contain`, `--containall`.
+
+In this case, you have to manually define where standard binds like the home folder or `/tmp` point.
+
+See `singularity help run` for more information.
+
+---
+
 ### Integration with Slurm (or other schedulers)
 
 .small[This is an example of how a slurm submit script could look like]
@@ -1152,56 +1186,39 @@ samtools view -bS yeast_reseq_ds-bt2aln.sam | samtools sort - --threads ${SLURM_
 
 # Scientific Filesystem (SCIF) Apps
 
-[The Scientific Filesystem (SCIF)](http://singularity.lbl.gov/docs-scif-apps) provides internal modularity of containers, 
+.small[[The Scientific Filesystem (SCIF)](http://singularity.lbl.gov/docs-scif-apps) provides internal modularity of containers, 
 and it makes it easy for the creator to give the container implied metadata about software
-
 
 e.g. metadata allows to define the list of applications available inside the
 container so the user doesn't need to know the details about the container internals.
 
+In this example I am listing all the utilities available in a container named
+"pescobar-OpenStructure-Singularity-master.simg"
+
+This container can be downloaded from the [singularity hub](https://www.singularity-hub.org/collections/607)
+]
+```terminal
+$ singularity apps pescobar-OpenStructure-Singularity-master.simg 
+chemdict_tool
+lddt
+molck
+ost
+tmalign
+tmscore
+```
+
 ---
 
 # Scientific Filesystem (SCIF) Apps
 
----
+.exercise[
+Download this Singularity [definition file](https://git.scicore.unibas.ch/escobar/singularity-examples/blob/master/pipeline1.def)
+and modify it so "singularity apps" lists the available applications in the container.
+]
 
-# Scientific Filesystem (SCIF) Apps
-
----
-
-# Host resources
-
-A Singularity container can have more host resources exposed.
-
-For providing access to more directories,
-  one can specify bind options at runtime with `-B`:
-
-```
--B source[:destination[:mode]]
-```
-
-where .highlight[source] is the path on the host,
-  .highlight[destination] is the path in a container (if different)
-  and .highlight[mode] is optionally `ro` if you don't want to give write access.
-
-Additionally, devices on the host can be exposed, e.g. the [GPU](http://singularity.lbl.gov/faq#does-singularity-support-containers-that-require-gpus)
-
-OpenMPI should also work. [Check official docs](http://singularity.lbl.gov/faq#can-i-containerize-my-mpi-application-with-singularity-and-run-it-properly-on-an-hpc-system)
 
 ---
 
-
-# Fuller isolation
-
-By default, a container is allowed a lot of "windows" into the host system (dictated by Singularity configuration).
-
-For an untrusted container, you can further restrict this with options like `--contain`, `--containall`.
-
-In this case, you have to manually define where standard binds like the home folder or `/tmp` point.
-
-See `singularity help run` for more information.
-
----
 
 # Distributing the container
 
