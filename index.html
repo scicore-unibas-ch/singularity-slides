@@ -308,7 +308,7 @@ Those facilities led to creation of solutions for containerization, notably LXC 
 Docker came about in 2013 and since has been on a meteoritic rise
   as a golden standard for containerization technology.
 
-A huge amount of tools is built around Docker to build, run,
+A huge amount of tools are built around Docker to build, run,
   orchestrate and integrate Docker containers.
 
 Many cloud service providers can directly integrate Docker containers.
@@ -318,43 +318,44 @@ Docker encourages splitting software into microservice chunks
 
 ---
 
-# Docker concerns
+## Docker concerns
 
-Docker uses a pretty complicated model of images/volumes/metadata,
-  orchestrating swarms of those containers to work together,
-  and it not always very transparent with how those are stored.
+.small[Docker uses a pretty complicated model of images/volumes/metadata,
+and it not always very transparent with how those are stored.
 
 Also, isolation features require superuser privileges;
-  Docker has a persistent daemon running with those privileges
-  and many container operations require root as well. In practice,
-  a user who can run docker containers can get root access.
+Docker has a persistent daemon running with those privileges
+and many container operations require root as well. In practice,
+a user who can run docker containers can get root access.
 
 Docker is mainly designed and used to run [microservices](https://en.wikipedia.org/wiki/Microservices) like web servers, databases,
- mail servers...etc
+mail servers...etc and not to run command line utilies like you usually do in an HPC cluster.
+Microservices also require orchestration tools like [docker-compose](https://docs.docker.com/compose/),
+[docker swarm](https://docs.docker.com/engine/swarm/) or [kubernetes](https://docs.docker.com/engine/swarm/)
 
-Both of those issues make Docker undesirable in multi-user, shared HPC environments.
+These concerns make Docker undesirable in multi-user, shared HPC environments.
 
 Out of those concerns, and out of scientific community, came Singularity.
-
+]
 ---
 
 # Singularity
 
 .small[Singularity is quite similar in principles to Docker. In fact,
-  it's pretty straightforward to convert a Docker container
-  to a Singularity image.
+it's pretty straightforward to convert a Docker container
+to a Singularity image.
 
 Singularity uses a monolithic, image-file based approach.
-  Instead of dynamically overlaid "layers" of Docker, you have
-  a single file you can build once and simply copy over to the target system.
+Instead of dynamically overlaid "layers" of Docker, you have
+a single file you can build once and simply copy over to the target system.
 
 The privilege problem was a concern from the ground-up, and solved by having a
-  `setuid`-enabled binary that can accomplish container startup - and drop
-  privileges completely as soon as practical.
+`setuid`-enabled binary that can accomplish container startup - and drop
+privileges completely as soon as practical.
 
 Privilege elevation inside a Singularity container is impossible (in theory ;): to be root inside,
-  you have to be root outside. And users don't need explicit root
-  access to operate existing containers]
+you have to be root outside. And users don't need explicit root
+access to execute existing containers]
 
 
 ---
@@ -362,7 +363,8 @@ Privilege elevation inside a Singularity container is impossible (in theory ;): 
 # Singularity and HPC
 
 root is only required for initial build of the container but you can do this in a virtual machine
-  (as we will do in this course) and then move the container to your HPC cluster
+(as we will do in this course) and then move the container to your HPC cluster. 
+.highlight[You don't need root to execute the containers]
 
 If the container is already available in a registry (containers repository) you can directly
   download it to your HPC cluster without root permissions.
