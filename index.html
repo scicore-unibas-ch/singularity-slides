@@ -384,7 +384,7 @@ class: center, middle
 .footnote[https://twitter.com/ljdursi/status/827186459975286787]
 ---
 
-## Performance comparison native VS singularity in the sciCORE cluster
+### Performance comparison: native VS singularity in the sciCORE cluster
 
 ### NGS pipeline without containers
 ```terminal
@@ -407,6 +407,13 @@ user@scicore:~$ sacct -j 86720  -o State,ExitCode,Elapsed,MaxRSS
 ```
 ---
 
+
+# Singularity workflow
+
+![:scale 100%](img/singularity_workflow.jpg)
+
+---
+
 # Singularity workflow
 
 .center[![:scale 100%](img/singularity-2.4-flow.png)]
@@ -421,12 +428,6 @@ to the cluster as a regular user.
 
 ---
 
-# Singularity workflow
-
-![:scale 100%](img/singularity_workflow.jpg)
-
----
-
 ### Some notes about the shell exercises
 
 .small[Every shell prompt is in format:]
@@ -436,7 +437,7 @@ to the cluster as a regular user.
 .small[ Some examples:]
 
 
-.small[Username "user" in machine "laptop" in folder "~"]
+.small[Username "user" in machine "laptop" in folder "~" (~ means $HOME)]
 ```terminal
 user@laptop:~$ mkdir ~/singularity-vm
 ```
@@ -450,10 +451,9 @@ vagrant@vm:~$ id
 root@vm:~/singularity-vm# 
 
 ```
-.small[p.d. ~ means $HOME]
-
 
 ---
+
 
 ### Installing Singularity in your laptop
 
@@ -716,7 +716,7 @@ in the container, we'll have the same access privileges. You will also have
 access from outside the container to files generated inside the container. As you can 
 imagine this is quite convenient when using Singularity in an HPC cluster.
 
-One of the biggest problems when working with Docker is dealing with different uids
+One of the biggest problems when working with Docker is dealing with different user uids
 inside and outside the container but this is "automagically" solved by singularity
 so you don't need to worry about it
 
@@ -798,15 +798,8 @@ Boo!
 
 ## STDIO with containers. A real world example
 
-This is a sample from a Slurm submit script: 
-
 ```bash
 #!/bin/bash
-
-#SBATCH --job-name=pipeline2-containers
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=10G
-#SBATCH --output=containers.log
 
 module load Singularity/2.4
 
@@ -823,7 +816,9 @@ singularity exec pipeline2.img freebayes -f $RefGenome/WholeGenomeFasta/genome.f
 
 ---
 
-## Create a writable singularity image for development
+## Creating your container from scratch
+
+### Option 1: Create a writable singularity image for development
 
 .small[First create an [empty writable image](http://singularity.lbl.gov/docs-build-container#--writable) 2048MB in size and initialize it with a centos7 docker image
 
@@ -851,14 +846,17 @@ Singularity centos7.img:~> yum -y install fortune-mod
 ]
 ---
 
-## Create a sandbox environment for development
+## Creating your container from scratch
 
-Another approach is to create a [sandbox](http://singularity.lbl.gov/docs-build-container#--sandbox) for development.
+### Option 2: Create a sandbox environment for development
+
+.small[Another approach is to create a [sandbox](http://singularity.lbl.gov/docs-build-container#--sandbox) for development.
+This is the recommended approach by the singularity developers.
 
 A [sandbox](http://singularity.lbl.gov/docs-build-container#--sandbox) is just a plain folder which contains all the files of the container.
 
-One of the advantages of this approach is that you don't need to define a fixed size in advance.
-
+One of the advantages of this approach is that you don't need to define a fixed size in advance. 
+]
 ```terminal
 vagrant@vm:~$ sudo singularity build --sandbox centos7_sandbox docker://centos:7
 
@@ -931,7 +929,7 @@ Instead of taking some base image and making changes to it by hand,
 
 This is achieved with [singularity recipes](http://singularity.lbl.gov/docs-recipes)
 
-Let's try to retrace out steps to obtain a fortune-telling CentOS.
+Let's try to retrace out steps to obtain a fortune-telling CentOS container.
 
 .exercise[
   Open a file called "fortune.def" in an editor, and prepare to copy along
@@ -1118,21 +1116,35 @@ Download this Singularity [definition file](https://git.scicore.unibas.ch/escoba
 
 ---
 
-# Integration with Slurm (or other schedulers)
+### Integration with Slurm (or other schedulers)
 
-This is an example of how a slurm submit script could look like
+.small[This is an example of how a slurm submit script could look like]
 
 ```bash
 #!/bin/bash
 
-#SBATCH --job-name=using-containers
-#SBATCH --time=02:00:00
+#SBATCH --job-name=using-singularity
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=10G
 
 module load Singularity/2.4
 
-singularity exec pipeline2.img samtools view -bS output/bowtie2/yeast_reseq_ds-bt2aln.sam | singularity exec pipeline2.img samtools sort - --threads ${SLURM_CPUS_PER_TASK} -o output/samtools/yeast_reseq_ds-bt2aln.s.bam
+singularity exec pipeline2.img samtools view -bS yeast_reseq_ds-bt2aln.sam | singularity exec pipeline2.img samtools sort - --threads ${SLURM_CPUS_PER_TASK} -o yeast_reseq_ds-bt2aln.s.bam
+
+```
+
+.small[This is the same job without singularity]
+
+```bash
+#!/bin/bash
+
+#SBATCH --job-name=without-containers
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=10G
+
+module load SAMtools/1.7-goolf-1.7.20
+
+samtools view -bS yeast_reseq_ds-bt2aln.sam | samtools sort - --threads ${SLURM_CPUS_PER_TASK} -o yeast_reseq_ds-bt2aln.s.bam
 
 ```
 
@@ -1210,13 +1222,13 @@ Note that you can't just run the image file on a host without Singularity instal
 This requires a GitHub repository with a `Singularity` definition file.
 
 After creating an account in the Singularity Hub and connecting to the GitHub account,
-  you can select a repository and branches to be built.
+  you can select a repository and branches from github to be built.
 
 .small[Example: 
 
-[https://github.com/pescobar/netgen](https://github.com/pescobar/netgen)
+[https://github.com/pescobar/OpenStructure-Singularity](https://github.com/pescobar/OpenStructure-Singularity)
 
-[https://singularity-hub.org/collections/138](https://singularity-hub.org/collections/138)
+[https://www.singularity-hub.org/collections/607](https://www.singularity-hub.org/collections/607)
 ]
 
 
@@ -1228,17 +1240,16 @@ After creating an account in the Singularity Hub and connecting to the GitHub ac
 
 Once your container is in Singularity hub you can pull the result:
 
-```
-$ singularity pull shub://kav2k/fortune
-$ ./kav2k-fortune-master.img
-Hello, World! Fortune Teller, built by shub-builder-103338658-2826.c.srcc-gcp-ruth-will-phs-testing.internal
+```terminal
+vagrant@vm:~$ singularity pull shub://pescobar/OpenStructure-Singularity
+vagrant@vm:~$ ./pescobar-OpenStructure-Singularity-master.simg
 ```
 You can check the [official docs](https://github.com/singularityhub/singularityhub.github.io/wiki/Build-A-Container)
 to learn how to upload your images to the official Singularity hub
 
 You can also host your private [singularity hub](https://github.com/singularityhub/sregistry)
 
-Possible exercise: Upload your first container to singularity hub
+Optional exercise: Upload your first container to singularity hub
 
 ---
 
