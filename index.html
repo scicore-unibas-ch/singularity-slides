@@ -194,7 +194,7 @@ Linux on Windows, etc.
 ---
 
 # Virtual Machines: the good parts
-
+.small[
 * The BYOE principle is fully realized
 
   Whatever your environment is, you can package it fully, OS and everything.
@@ -209,6 +209,8 @@ Linux on Windows, etc.
   The contained application, together with its OS, has restricted access to
   hardware: you measure out its disk, memory and alloted CPU.
 
+* More Flexible. More OS are supported
+]
 ---
 
 # Virtual machines: the not so good parts
@@ -272,9 +274,8 @@ You may present devices on the system directly to containers if you so desire. e
 
 * Security concerns
 
-  The isolation is thinner than in VM case, and the host OS kernel
-    is directly exposed. Other software is isolated at the kernel level,
-    but the attack surface is larger.
+The isolation is thinner than in VM case. The host OS kernel
+and hardware is directly exposed so the attack surface is larger.
 
 * Linux on Linux
 
@@ -1383,4 +1384,4 @@ Tutorial using Singularity, SCIF and SnakeMake
   </body>
 </html>
 
-# vim: syntax=markdown tabstop=2 shiftwidth=2 expandtab
+# vim: filetype=markdown syntax=markdown tabstop=2 shiftwidth=2 expandtab
