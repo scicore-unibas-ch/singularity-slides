@@ -44,7 +44,7 @@ Researchers/Developers willing to learn how to package their applications and wo
 
   ## Objective
 
-- Explain the basics technical concepts about containers
+- Explain the basic technical concepts about containers
 
 - Differences between Virtual Machines and containers. Pros and Cons
 
@@ -57,7 +57,7 @@ Researchers/Developers willing to learn how to package their applications and wo
   - Share Singularity containers
 
 ---
-  
+
   ## Requirements to follow the course
 
 - Your laptop with:
@@ -68,7 +68,7 @@ Researchers/Developers willing to learn how to package their applications and wo
 
 - Linux shell knowledge
 
-- If you are using a Window laptop you also need [MobaXterm](https://mobaxterm.mobatek.net/download-home-edition.html)
+- If you are using a Windows laptop you also need [MobaXterm](https://mobaxterm.mobatek.net/download-home-edition.html)
   to have a bash shell
 
 ---
@@ -83,15 +83,15 @@ class: center, middle
 
 Suppose you're writing some software. It works great on your machine.
 
-However, eventually it has to leave your machine: has to run on your colleague's machine,
-  or deployed in its production environment.
+However, eventually it has to leave your machine to run on your colleague's machine,
+  or be deployed in its production environment.
 
-It can be a completely different flavour of OS, with a different set of libraries
+It could be a completely different flavour of OS, with a different set of libraries
   and supporting tools.
 
-It can be difficult to test if you accounted for all those variation
+It can be difficult to test if you accounted for all these variations
   on your own development system. You may have things in your environment
-  you're not even aware of that they make a difference.
+  you're not even aware of which make a difference.
 
 Your users could also be less technically inclined to deal with dependencies.
   You may wish to decrease this friction.
@@ -110,7 +110,7 @@ The build instuctions indicate 5-years-old out of date libraries
 
 And no, the original developer is most certainly no longer available.
 
-You also don't trust this software fully not to mess up your OS.
+You also don't fully trust that this software will not mess up your OS.
 
 Or, you want to run it on a remote server for which you don't
   even have the privileges to comfortably install all the dependencies.
@@ -129,23 +129,23 @@ Then someone half across the globe tries to reproduce it,
 Or, even simpler: your group tries to use your software a couple
   of years after you left, and nobody can get it to work.
 
-For a reproducible way to do science with the help of software
-  packaging just the source code might not be enough;
+To enable reproducible science with the help of software packaging,
+  just the source code might not be enough;
   the environment should also be predictable.
 
 ---
 
 # Problem (for server administrators)
 
-Suppose have a hundred of users, each requesting certain software.
+Suppose you have one hundred users, each requesting certain software.
 
 Some of it needs to be carefully built from scratch,
   as there are no prebuilt packages.
 
 Some of the software works with mutually-incompatible library versions.
-  Possibly even known-insecure ones.
+  Possibly these have known security issues.
 
-And finally, _you most certainly don't_ trust any of this software
+And finally, _you most certainly don't trust_ any of this software
   not to mess up your OS. You've been there before.
 
 ---
@@ -195,16 +195,16 @@ Linux on Windows, etc.
 
 # Virtual Machines: the good parts
 
-* The BYOE principle is fully realized.
-  
+* The BYOE principle is fully realized
+
   Whatever your environment is, you can package it fully, OS and everything.
 
 * Security risks are truly minimized.
 
   Very narrow and secured bridge between the guest and the host means little
-  opportunity for a bad actor to break out of isolation
+  opportunity for a bad actor to break out of isolation.
 
-* Easy to precisely measure out resources.
+* Easy to precisely measure out resources
 
   The contained application, together with its OS, has restricted access to
   hardware: you measure out its disk, memory and alloted CPU.
@@ -215,16 +215,16 @@ Linux on Windows, etc.
 
 * Operational overhead. For every piece of software, the full underlying OS has to be run.
 
-* Setup overhead.  Starting and stopping a virtual machine is not very fast,
+* Setup overhead. Starting and stopping a virtual machine is not very fast,
   and/or requires saving its state.
 
 * Hardware availability. The isolation between the host and the guest can hinder access to
-    specialized hardware on the host system. e.g. GPUs
+    specialized hardware on the host system (eg GPUs)
 
-* There are a lot of different hypervisors Xen, KVM, VirtualBox...) . Very little chance that you get a hypervisor installed
-in your HPC cluster. 
+* There are a lot of different hypervisors (eg Xen, KVM, VirtualBox). Very little chance that you get a hypervisor installed
+in your HPC cluster.
 
-* No integration with HPC schedulers (Slurm, SGE..)
+* No integration with HPC schedulers (Slurm, SGE)
 
 ---
 
@@ -233,11 +233,11 @@ in your HPC cluster.
 If your host OS is Linux and your software expects Linux, there's
   a more direct and lightweight way to reach similar goals.
 
-Recent kernel advances allow to isolate processes from the rest
+Recent kernel advances allow the isolation of processes from the rest
   of the system, presenting them with their own view of the system.
 
-You can package entire other Linux distributions, and with the exception
-  of the host kernel, all the userland can be different for the process.
+You can package other different Linux distributions, and with the exception
+  of the host kernel, the entire userland can be different for the process.
 
 From the point of view of the application, it's running on the same hardware
   as the host, hence containers are called
@@ -252,7 +252,7 @@ From the point of view of the application, it's running on the same hardware
 * Lower startup overhead. Setup and teardown of a container is much less costly.
 
 * More hardware flexibility. You don't have to dedicate a set portion of memory to your VM
-well in advance, or contain your files in a fixed-size filesystem.  Also, the level of isolation is up to you. 
+well in advance, or contain your files in a fixed-size filesystem.  Also, the level of isolation is up to you.
 You may present devices on the system directly to containers if you so desire. e.g. GPUs
 
 * Integration with HPC schedulers is trivial
@@ -272,8 +272,8 @@ You may present devices on the system directly to containers if you so desire. e
 
 * Security concerns
 
-  The isolation is thinner than in VM case, and kernel of the host OS
-    is directly exposed. Other software is isolated at kernel level,
+  The isolation is thinner than in VM case, and the host OS kernel
+    is directly exposed. Other software is isolated at the kernel level,
     but the attack surface is larger.
 
 * Linux on Linux
@@ -305,10 +305,10 @@ Those facilities led to creation of solutions for containerization, notably LXC 
 
 # Docker
 
-Docker came about in 2013 and since has been on a meteoritic rise
-  as a golden standard for containerization technology.
+Docker came about in 2013 and since has been on a meteoric rise
+  as a gold standard for containerization technology.
 
-A huge amount of tools are built around Docker to build, run,
+A huge number of tools are built around Docker to build, run,
   orchestrate and integrate Docker containers.
 
 Many cloud service providers can directly integrate Docker containers.
@@ -321,7 +321,7 @@ Docker encourages splitting software into microservice chunks
 ## Docker concerns
 
 .small[Docker uses a pretty complicated model of images/volumes/metadata,
-and it not always very transparent with how those are stored.
+and it is not always very transparent how this is stored.
 
 Also, isolation features require superuser privileges;
 Docker has a persistent daemon running with those privileges
@@ -329,19 +329,19 @@ and many container operations require root as well. In practice,
 a user who can run docker containers can get root access.
 
 Docker is mainly designed and used to run [microservices](https://en.wikipedia.org/wiki/Microservices) like web servers, databases,
-mail servers...etc and not to run command line utilies like you usually do in an HPC cluster.
+mail servers, etc and not to run command line utilies like one usually does in an HPC cluster.
 Microservices also require orchestration tools like [docker-compose](https://docs.docker.com/compose/),
 [docker swarm](https://docs.docker.com/engine/swarm/) or [kubernetes](https://docs.docker.com/engine/swarm/)
 
 These concerns make Docker undesirable in multi-user, shared HPC environments.
 
-Out of those concerns, and out of scientific community, came Singularity.
+Out of these concerns, and the scientific community, came Singularity.
 ]
 ---
 
 # Singularity
 
-.small[Singularity is quite similar in principles to Docker. In fact,
+.small[Singularity is quite similar in principle to Docker. In fact,
 it's pretty straightforward to convert a Docker container
 to a Singularity image.
 
@@ -363,7 +363,7 @@ access to execute existing containers]
 # Singularity and HPC
 
 root is only required for initial build of the container but you can do this in a virtual machine
-(as we will do in this course) and then move the container to your HPC cluster. 
+(as we will do in this course) and then move the container to your HPC cluster.
 .highlight[You don't need root to execute the containers]
 
 If the container is already available in a registry (containers repository) you can directly
@@ -382,20 +382,20 @@ Once your software is packaged in Singularity, it should work across
 ### NGS pipeline without containers
 ```terminal
 user@scicore:~$ sacct -j 86719  -o State,ExitCode,Elapsed,MaxRSS
- 
+
      State ExitCode  Elapsed     MaxRSS
 ---------- --------  ---------- ----------
- COMPLETED      0:0  00:55:47           
+ COMPLETED      0:0  00:55:47
  COMPLETED      0:0  00:55:47   31754776K (31.754776GB)
 ```
 
 ### NGS pipeline using Singularity containers
 ```terminal
 user@scicore:~$ sacct -j 86720  -o State,ExitCode,Elapsed,MaxRSS
- 
+
      State ExitCode   Elapsed     MaxRSS
 ---------- --------  ----------  ----------
- COMPLETED      0:0  00:58:46           
+ COMPLETED      0:0  00:58:46
  COMPLETED      0:0  00:58:46    31755136K (31.755136GB)
 ```
 ---
@@ -404,7 +404,7 @@ class: center, middle
 
 ### Performance benchmark: Singularity VS Docker VS native
 
-![:scale 70%](img/singularity_docker_benchmark.jpg) 
+![:scale 70%](img/singularity_docker_benchmark.jpg)
 
 .footnote[https://twitter.com/ljdursi/status/827186459975286787]
 ---
@@ -450,7 +450,7 @@ vagrant@vm:~$ id
 
 .small[Username "root" in machine "vm" in folder "~/singularity-vm"]
 ```terminal
-root@vm:~/singularity-vm# 
+root@vm:~/singularity-vm#
 
 ```
 
@@ -492,7 +492,7 @@ user@laptop:~/singularity-vm$
 
 ## Installing Singularity in your laptop
 
-Verify that the folder /vagrant inside the VM is mapped to the local folder ~/singularity-vm in your laptop 
+Verify that the folder /vagrant inside the VM is mapped to the local folder ~/singularity-vm in your laptop
 
 ```terminal
 user@laptop:~$ cd ~/singularity-vm
@@ -512,7 +512,7 @@ user@laptop:~/singularity-vm$ ls ~/singularity-vm
 dummy2.file  dummy.file  ubuntu-xenial-16.04-cloudimg-console.log  Vagrantfile
 ```
 
-.small[We will use this to copy files from/to the VM to the laptop
+.small[We will use this to copy files from/to the VM and laptop
 
 We can also use it to edit the files inside the VM with our preferred editor running in our laptop]
 
@@ -529,7 +529,7 @@ user@laptop:~$ cd ~/singularity-vm/
 user@laptop:~/singularity-vm$ vagrant ssh -c /bin/bash <<EOF
     sudo apt-get update
     sudo apt-get -y install build-essential squashfs-tools curl git sudo man \
-    vim autoconf libtool emacs24-nox python bash-completion 
+    vim autoconf libtool emacs24-nox python bash-completion
     mkdir ~/src/ && cd ~/src/
     wget https://github.com/singularityware/singularity/archive/2.4.tar.gz
     tar xvf 2.4.tar.gz
@@ -597,7 +597,7 @@ Importing: base Singularity environment
 Building Singularity image...
 Singularity container built: ./samtools.img
 
-vagrant@vm:~$ singularity run samtools.img 
+vagrant@vm:~$ singularity run samtools.img
 Program: samtools (Tools for alignments in the SAM format)
 Version: 1.3.1 (using htslib 1.3.1)
 
@@ -609,7 +609,7 @@ Singularity samtools.img:~> ls $HOME
 Singularity samtools.img:~> id
 Singularity samtools.img:~> exit
 
-vagrant@vm:~$ 
+vagrant@vm:~$
 ```
 
 .small[This will download the layers of the Docker container to your
@@ -632,7 +632,7 @@ Importing: base Singularity environment
 Building Singularity image...
 Singularity container built: ./samtools.img
 
-user@scluster:~$ singularity run samtools.img 
+user@scluster:~$ singularity run samtools.img
 Program: samtools (Tools for alignments in the SAM format)
 Version: 1.3.1 (using htslib 1.3.1)
 
@@ -644,7 +644,7 @@ Singularity samtools.img:~> ls $HOME
 Singularity samtools.img:~> id
 Singularity samtools.img:~> exit
 
-user@cluster:~$ 
+user@cluster:~$
 ```
 -->
 ---
@@ -663,7 +663,7 @@ WARNING: same image on repeated pull. Use Singularity Registry
 WARNING: (shub://) to pull exactly equivalent images.
 Docker image path: index.docker.io/library/centos:6
 Cache folder set to /home/vagrant/.singularity/docker
-[1/1] |===================================| 100.0% 
+[1/1] |===================================| 100.0%
 Importing: base Singularity environment
 Importing: /home/vagrant/.singularity/docker/sha256:ca9499a209fd9abe7f919a5c99989fd26d3410164e499fe577be504341f0a352.tar.gz
 Importing: /home/vagrant/.singularity/metadata/sha256:b4d98049dd466efa5cfbf4b07aa672ced350fdbec3cd2faa139b194623df29ef.tar.gz
@@ -714,8 +714,8 @@ vagrant
 ```
 
 .small[We will also have the same groups. That way, if any host resources are mounted
-in the container, we'll have the same access privileges. You will also have 
-access from outside the container to files generated inside the container. As you can 
+in the container, we'll have the same access privileges. You will also have
+access from outside the container to files generated inside the container. As you can
 imagine this is quite convenient when using Singularity in an HPC cluster.
 
 One of the biggest problems when working with Docker is dealing with different user uids
@@ -737,7 +737,7 @@ centos-6.img  src
 ```
 
 We have access to the bound folders with the same rights as outside,
-  so we can e.g. write to 
+  so we can for example write to:
 
 ```
 Singularity centos-6.img:~> touch ~/test_container
@@ -853,11 +853,11 @@ Singularity centos7.img:~> yum -y install fortune-mod
 ### Option 2: Create a sandbox environment for development
 
 .small[Another approach is to create a [sandbox](http://singularity.lbl.gov/docs-build-container#--sandbox) for development.
-This is the recommended approach by the singularity developers.
+This is the approach recommended by the singularity developers.
 
 A [sandbox](http://singularity.lbl.gov/docs-build-container#--sandbox) is just a plain folder which contains all the files of the container.
 
-One of the advantages of this approach is that you don't need to define a fixed size in advance. 
+One of the advantages of this approach is that you don't need to define a fixed size in advance.
 ]
 ```terminal
 vagrant@vm:~$ sudo singularity build --sandbox centos7_sandbox docker://centos:7
@@ -869,7 +869,7 @@ vagrant@vm:~$ sudo singularity shell --writable centos7_sandbox/
 Singularity centos7_sandbox:~> whoami
 root
 
-Singularity centos7_sandbox:~> cat /etc/redhat-release 
+Singularity centos7_sandbox:~> cat /etc/redhat-release
 CentOS Linux release 7.4.1708 (Core)
 ```
 
@@ -945,7 +945,7 @@ The definition file starts with a [header section](http://singularity.lbl.gov/do
 
 The key part of it is the `Bootstrap:` configuration.
 
-There are 2 currently types of bootstrap methods:
+There are currently 2 types of bootstrap methods:
 
 * using `yum`/`apt`/`pacman` on the host system to bootstrap a similar one
 * pull a Docker image
@@ -1191,7 +1191,7 @@ samtools view -bS yeast_reseq_ds-bt2aln.sam | samtools sort - --threads ${SLURM_
 
 # Scientific Filesystem (SCIF) Apps
 
-.small[[The Scientific Filesystem (SCIF)](http://singularity.lbl.gov/docs-scif-apps) provides internal modularity of containers, 
+.small[[The Scientific Filesystem (SCIF)](http://singularity.lbl.gov/docs-scif-apps) provides internal modularity of containers,
 and it makes it easy for the creator to give the container implied metadata about software
 
 e.g. metadata allows to define the list of applications available inside the
@@ -1203,7 +1203,7 @@ In this example I am listing all the utilities available in a container named
 This container can be downloaded from the [singularity hub](https://www.singularity-hub.org/collections/607)
 ]
 ```terminal
-$ singularity apps pescobar-OpenStructure-Singularity-master.simg 
+$ singularity apps pescobar-OpenStructure-Singularity-master.simg
 chemdict_tool
 lddt
 molck
@@ -1232,7 +1232,7 @@ allowing you to run services (e.g. Nginx, MySQL, etc…) using Singularity.
 
 .exercise[
 Read the docs about [Singularity instances](http://singularity.lbl.gov/docs-instances#container-instances-in-singularity)
-and do the [hello world](http://singularity.lbl.gov/docs-instances#nginx-hello-world-in-singularity) exercise to boot an 
+and do the [hello world](http://singularity.lbl.gov/docs-instances#nginx-hello-world-in-singularity) exercise to boot an
 Nginx webserver with Singularity.
 ]
 
@@ -1260,7 +1260,7 @@ This requires a GitHub repository with a `Singularity` definition file.
 After creating an account in the Singularity Hub and connecting to the GitHub account,
   you can select a repository and branches from github to be built.
 
-.small[Example: 
+.small[Example:
 
 [https://github.com/pescobar/OpenStructure-Singularity](https://github.com/pescobar/OpenStructure-Singularity)
 
@@ -1328,7 +1328,7 @@ Another work in progress:
 
 # More examples
 
-## Using Conda inside Singularity 
+## Using Conda inside Singularity
 
 Check this Singularity [definition file](https://git.scicore.unibas.ch/escobar/singularity-examples/blob/master/singularity_conda.def)
 
@@ -1341,12 +1341,12 @@ Check this Singularity [definition file](https://git.scicore.unibas.ch/escobar/s
 ]
 ---
 
-# More examples 
+# More examples
 
 ## Using EasyBuild inside Singularity
 
-[EasyBuild](https://easybuilders.github.io/easybuild/) is a tool to build scientific software. 
-Building your software inside a Singularity container you can keep full control about what 
+[EasyBuild](https://easybuilders.github.io/easybuild/) is a tool to build scientific software.
+Building your software inside a Singularity container you can keep full control about what
 dependencies your tool is using.
 
 See an example container [here](https://github.com/pescobar/singularity-easybuild)
@@ -1384,4 +1384,3 @@ Tutorial using Singularity, SCIF and SnakeMake
 </html>
 
 # vim: syntax=markdown tabstop=2 shiftwidth=2 expandtab
-
