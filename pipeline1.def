@@ -1,0 +1,34 @@
+Bootstrap: docker
+From: centos:7.3.1611
+
+%runscript
+
+   #"I can put here whatever I want to happen by default when the user runs the container"
+   cat << EOF
+This container includes the following apps:
+STAR version 2.5.2b - https://github.com/alexdobin/STAR
+HTSeq version 0.6.1p1 - http://www-huber.embl.de/HTSeq/
+Pysam version 0.9.0 - https://github.com/pysam-developers/pysam
+To execute a binary inside the container do "singularity exec /path/to/container.img binary-name"
+EOF
+
+%post
+
+   echo "Here we are installing software and other dependencies for the container!"
+
+   echo "Installing STAR"
+   yum -y install make gcc gcc-c++ zlib-devel
+   cd /usr/local/src/
+   curl -o STAR-2.5.2b.tar.gz  https://codeload.github.com/alexdobin/STAR/tar.gz/2.5.2b
+   tar xf STAR-2.5.2b.tar.gz
+   cd /usr/local/src/STAR-2.5.2b/source
+   make STAR && make STARlong
+   cp /usr/local/src/STAR-2.5.2b/source/{STAR,STARlong} /usr/local/bin
+
+   echo "Installing HTSeq and Pysam"
+   yum -y install epel-release
+   yum -y install make gcc gcc-c++ zlib-devel python-devel python-pip numpy
+   pip install HTSeq==0.6.1p1
+   pip install Pysam==0.9.0
+
+   yum clean all
