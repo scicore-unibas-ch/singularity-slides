@@ -495,7 +495,7 @@ user@laptop:~/singularity-vm$
 
 ## Installing Singularity in your laptop
 
-Verify that the folder /vagrant inside the VM is mapped to the local folder ~/singularity-vm in your laptop
+.small[Verify that the folder /vagrant inside the VM is mapped to the local folder ~/singularity-vm in your laptop
 
 ```terminal
 user@laptop:~$ cd ~/singularity-vm
@@ -515,12 +515,11 @@ user@laptop:~/singularity-vm$ ls ~/singularity-vm
 dummy2.file  dummy.file  ubuntu-xenial-16.04-cloudimg-console.log  Vagrantfile
 ```
 
-.small[We will use this to copy files from/to the VM and laptop
-
-We can also use it to edit the files inside the VM with our preferred editor running in our laptop
-
-DON'T USE THIS FOLDER TO GENERATE YOUR CONTAINERS ON IT. ALWAYS
-GENERATE THE CONTAINERS IN /home/vagrant AND THEN COPY TO /vagrant IF NEEDED
+We will use this to copy files from/to the VM and laptop. We can also use it to edit the files
+ inside the VM with our preferred editor running in our laptop
+  
+.highlight[Don't generate your containers directly in /vagrant .
+Generate the containers in /home/vagrant and then copy to /vagrant if needed]
 ]
 
 
