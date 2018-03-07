@@ -14,6 +14,7 @@ From: ubuntu:16.04
     rm -fr Miniconda2-latest-Linux-x86_64.sh
 
     # use conda to install some bioinfo tools
+    export PATH=/opt/miniconda2/bin:$PATH
     conda install --yes -c bioconda samtools==1.7
     conda install --yes -c bioconda bwa=0.7.8
 
