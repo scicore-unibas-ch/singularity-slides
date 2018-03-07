@@ -1122,7 +1122,7 @@ vagrant@vm:~$ sudo singularity build fortune.img fortune.def
 Download this Singularity [definition file](https://git.scicore.unibas.ch/escobar/singularity-examples/blob/master/pipeline1.def)
 
 .exercise[
-  Build this container and try to execute STAR and HTSeq utilities using "singularity exec"
+  Build this container and try to execute STAR and htseq-count utilities using "singularity exec"
 ]
 
 ---
@@ -1238,7 +1238,7 @@ tmscore
 
 .exercise[
 Download this Singularity [definition file](https://git.scicore.unibas.ch/escobar/singularity-examples/blob/master/pipeline1.def)
-and modify it so "singularity apps" lists the available applications in the container.
+and modify it so "singularity apps" lists the available applications in the container (STAR and htseq-count).
 ]
 
 hint: you have to add some `%apprun` lines
