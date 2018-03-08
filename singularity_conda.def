@@ -8,13 +8,15 @@ From: ubuntu:16.04
     locale-gen en_US.UTF-8
     apt-get clean
 
-    # download and install miniconda2
-    curl -sSL -O https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
-    bash Miniconda2-latest-Linux-x86_64.sh -p /opt/miniconda2 -b
-    rm -fr Miniconda2-latest-Linux-x86_64.sh
+    # download and install miniconda3
+    curl -sSL -O https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    bash Miniconda3-latest-Linux-x86_64.sh -p /opt/miniconda3 -b
+    rm -fr Miniconda3-latest-Linux-x86_64.sh
+    export PATH=/opt/miniconda3/bin:$PATH
+    conda update -n base conda
 
     # use conda to install some bioinfo tools
-    export PATH=/opt/miniconda2/bin:$PATH
+    export PATH=/opt/miniconda3/bin:$PATH
     conda install --yes -c bioconda samtools==1.7
     conda install --yes -c bioconda bwa=0.7.8
 
@@ -22,16 +24,16 @@ From: ubuntu:16.04
     export LANG=en_US.UTF-8
     export LANGUAGE=en_US:en
     export LC_ALL=en_US.UTF-8
-    export PATH=/opt/miniconda2/bin:$PATH
+    export PATH=/opt/miniconda3/bin:$PATH
 
 %apphelp samtools
     "samtools version 1.7"
 
 %apprun samtools
-    /opt/miniconda2/bin/samtools
+    /opt/miniconda3/bin/samtools
 
 %apphelp bwa
     "BWA version 0.7.8"
 
 %apprun bwa
-    /opt/miniconda2/bin/bwa
+    /opt/miniconda3/bin/bwa
