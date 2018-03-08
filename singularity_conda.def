@@ -16,7 +16,6 @@ From: ubuntu:16.04
     conda update -n base conda
 
     # use conda to install some bioinfo tools
-    export PATH=/opt/miniconda3/bin:$PATH
     conda install --yes -c bioconda samtools==1.7
     conda install --yes -c bioconda bwa=0.7.8
 
