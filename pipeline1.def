@@ -24,7 +24,7 @@ EOF
    make STAR && make STARlong
    cp /usr/local/src/STAR-2.5.2b/source/{STAR,STARlong} /usr/local/bin
 
-   echo "Installing HTSeq and Pysam"
+   echo "Installing HTSeq"
    yum -y install epel-release
    yum -y install make gcc gcc-c++ zlib-devel python-devel python-pip numpy
    pip install HTSeq==0.6.1p1
