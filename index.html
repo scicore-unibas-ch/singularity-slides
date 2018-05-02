@@ -550,11 +550,11 @@ user@laptop:~$ cd ~/singularity-vm/
 user@laptop:~/singularity-vm$ vagrant ssh -c /bin/bash <<EOF
     sudo apt-get update
     sudo apt-get -y install build-essential squashfs-tools curl git sudo man \
-    vim autoconf libtool emacs24-nox python bash-completion
+    vim autoconf libtool emacs24-nox python bash-completion libarchive-dev
     mkdir ~/src/ && cd ~/src/
-    wget https://github.com/singularityware/singularity/archive/2.4.4.tar.gz
-    tar xvf 2.4.4.tar.gz
-    cd singularity-2.4.4/
+    wget https://github.com/singularityware/singularity/archive/2.5.0.tar.gz
+    tar xvf 2.5.0.tar.gz
+    cd singularity-2.5.0/
     ./autogen.sh
     ./configure --prefix=/usr/local
     make
@@ -578,7 +578,7 @@ user@laptop:~$ cd ~/singularity-vm/
 user@laptop:~/singularity-vm$ vagrant ssh
 
 vagrant@vm:~$ singularity --version
-2.4-dist
+2.5-dist
 ```
 
 The general format of Singularity commands is:
