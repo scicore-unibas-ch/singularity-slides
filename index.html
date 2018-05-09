@@ -552,9 +552,9 @@ user@laptop:~/singularity-vm$ vagrant ssh -c /bin/bash <<EOF
     sudo apt-get -y install build-essential squashfs-tools curl git sudo man \
     vim autoconf libtool emacs24-nox python bash-completion libarchive-dev
     mkdir ~/src/ && cd ~/src/
-    wget https://github.com/singularityware/singularity/archive/2.5.0.tar.gz
-    tar xvf 2.5.0.tar.gz
-    cd singularity-2.5.0/
+    wget https://github.com/singularityware/singularity/archive/2.5.1.tar.gz
+    tar xvf 2.5.1.tar.gz
+    cd singularity-2.5.1/
     ./autogen.sh
     ./configure --prefix=/usr/local
     make
