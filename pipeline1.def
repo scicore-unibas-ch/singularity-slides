@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: centos:7.3.1611
+From: centos:7
 
 %runscript
 
