@@ -1400,6 +1400,21 @@ Another work in progress:
 
 ---
 
+# Docker -> Singularity
+
+.exercise[
+  Execute a docker container from [BioContainers project](https://biocontainers.pro/)
+]
+
+```terminal
+vagrant@vm :~$ singularity pull docker://biocontainers/blast
+
+singularity exec blast.simg blastx -h
+
+```
+
+---
+
 
 # More examples
 
