@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Working with Containers</title>
+    <title>Intro to Singularity containers</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" type="text/css" href="css/common.css">
   </head>
@@ -10,13 +10,13 @@
 
 class: center, middle
 
-# Working with Singularity Containers
+# Intro to Singularity Containers
 
 Pablo Escobar Lopez
 
-https://scicore-unibas-ch.github.io/singularity-slides/
+https://pescobar.github.io/singularity-intro/
 
-http://singularity.lbl.gov/
+https://www.sylabs.io/
 
 ---
 
@@ -42,21 +42,11 @@ Except where otherwise noted, this presentation is licensed under [Creative Comm
 4. History of containers
 5. Docker vs Singularity
 6. Singularity workflow
-7. Installing and testing Singularity
-8. Writing a Singularity definition file
-9. Using host resources
-10. Distributing Singularity containers
-
+7. Examples
 
 ---
 
-  ## Audience
-
-Researchers/Developers willing to learn how to package their applications and workflows using Singularity containers
-
----
-
-  ## Objective
+## Objective
 
 - Explain the basic technical concepts about containers
 
@@ -64,15 +54,15 @@ Researchers/Developers willing to learn how to package their applications and wo
 
 - Differences between Docker and Singularity. Pros and Cons
 
-- Learn how to use Singularity
-
+- Some practical examples with Singularity
+  
   - Execute Singularity containers
   - Create Singularity containers from scratch
   - Share Singularity containers
 
 ---
-
-  ### Requirements to follow the course
+  
+### Requirements to follow the course
 
 - Your laptop with:
 
@@ -90,7 +80,7 @@ Researchers/Developers willing to learn how to package their applications and wo
 
 class: center, middle
 
-# The Problem(s)
+# The Problem(s) we would like to solve
 
 ---
 
@@ -114,24 +104,6 @@ Your users could also be less technically inclined to deal with dependencies.
 ---
 
 
-# Problem (for users)
-
-Suppose you want to run some piece of software.
-
-First-off, you really would like some sort of turn-key solution.
-
-The build instuctions indicate 5-years-old out of date libraries
-  on top of a similarly old OS distribution.
-
-And no, the original developer is most certainly no longer available.
-
-You also don't fully trust that this software will not mess up your OS.
-
-Or, you want to run it on a remote server for which you don't
-  even have the privileges to comfortably install all the dependencies.
-
----
-
 # Problem (for researchers)
 
 Suppose you have a piece of scientific software you used
@@ -154,8 +126,11 @@ To enable reproducible science with the help of software packaging,
 
 Suppose you have one hundred users, each requesting certain software.
 
-Some of it needs to be carefully built from scratch,
-  as there are no prebuilt packages.
+Some of those applications have ancient dependencies very hard (or imposible) 
+to compile from sources in your system 
+
+Some of those application only work with linux distribution "XXX" . the developer said 
+"it works in my computer" ;). Of course your cluster runs a different distro
 
 Some of the software works with mutually-incompatible library versions.
   Possibly these have known security issues.
@@ -174,11 +149,6 @@ And finally, _you most certainly don't trust_ any of this software
 * BYOE: Bring Your Own Environment
 
   A way to capture the prerequisites and environment together with the software.
-
-* Mitigate security risks
-
-  Provide a measure of isolation between the software running on a system.
-  No security is perfect, but some is better than none.
 
 ---
 
@@ -208,16 +178,18 @@ Linux on Windows, etc.
 
 ---
 
+## Virtual machines
+
+.center[![:scale 40%](img/vms-schema.png)]
+
+image source: [http://www.admin-magazine.com/HPC/Articles/Singularity-A-Container-for-HPC](http://www.admin-magazine.com/HPC/Articles/Singularity-A-Container-for-HPC)
+---
+
 # Virtual Machines: the good parts
 .small[
 * The BYOE principle is fully realized
 
   Whatever your environment is, you can package it fully, OS and everything.
-
-* Security risks are truly minimized.
-
-  Very narrow and secured bridge between the guest and the host means little
-  opportunity for a bad actor to break out of isolation.
 
 * Easy to precisely measure out resources
 
@@ -225,6 +197,11 @@ Linux on Windows, etc.
   hardware: you measure out its disk, memory and alloted CPU.
 
 * More Flexible. More OS are supported
+
+* Security risks are truly minimized.
+
+  Very narrow and secured bridge between the guest and the host means little
+  opportunity for a bad actor to break out of isolation.
 ]
 ---
 
@@ -259,6 +236,13 @@ You can package other different Linux distributions, and with the exception
 From the point of view of the application, it's running on the same hardware
   as the host, hence containers are called
   .highlight[operating-system-level virtualization].
+
+---
+## Containers
+
+.center[![:scale 80%](img/vm_vs_singularity.png)]
+
+image source: [http://www.admin-magazine.com/HPC/Articles/Singularity-A-Container-for-HPC](http://www.admin-magazine.com/HPC/Articles/Singularity-A-Container-for-HPC)
 
 ---
 
@@ -319,6 +303,21 @@ Those facilities led to creation of solutions for containerization, notably LXC 
 
 ---
 
+## Main technologies used to create containers
+
+All the recent containers solutions (LXC, Docker, Singularity...etc) use namespaces and cgroups 
+to isolate the containers from the host
+
+These two technologies (namespaces and cgroups) are provided by the Linux kernel
+
+The container solution "only" provides a easy way for the end user to automate the creation
+of the required namespaces and cgroups
+
+In the case of Docker it's the docker daemon who does the job. In Singularity it's a setuid
+binary who does it.
+
+---
+
 # Docker
 
 Docker came about in 2013 and since has been on a meteoric rise
@@ -336,28 +335,37 @@ Docker encourages splitting software into microservice chunks
 
 ## Docker concerns
 
-.small[Docker uses a pretty complicated model of images/volumes/metadata,
+Docker uses a pretty complicated model of images/volumes/metadata,
 and it is not always very transparent how this is stored.
 
 Also, isolation features require superuser privileges;
 Docker has a persistent daemon running with root privileges
 and many container operations require root as well. In practice,
-a user who can run docker containers can get root access.
+.highlight[a user who can run docker containers can get root access]
 
 Docker is mainly designed and used to run [microservices](https://en.wikipedia.org/wiki/Microservices) like web servers, databases,
-mail servers, etc and not to run command line utilies like one usually does in an HPC cluster.
+mail servers, etc and not to run command line utilies like most users usually do in an HPC cluster.
 Microservices also require orchestration tools like [docker-compose](https://docs.docker.com/compose/),
-[docker swarm](https://docs.docker.com/engine/swarm/) or [kubernetes](https://docs.docker.com/engine/swarm/)
+[docker swarm](https://docs.docker.com/engine/swarm/) or [kubernetes](https://kubernetes.io/)
+
+---
+
+## Docker concerns
+
+The user IDs inside and outside the docker containers are not easily mapped. 
+
+This means that processes running inside the container can run with different UID than the user
+who is executing the container. Because of this, the generated files won't be accessible by the user "outside"
+the container
 
 These concerns make Docker undesirable in multi-user, shared HPC environments.
 
 Out of these concerns, and the scientific community, came Singularity.
-]
 ---
 
 # Singularity
 
-.small[Singularity is quite similar in principle to Docker. In fact,
+Singularity is quite similar in principle to Docker. In fact,
 it's pretty straightforward to convert a Docker container
 to a Singularity image.
 
@@ -369,10 +377,20 @@ The privilege problem was a concern from the ground-up, and solved by having a
 `setuid`-enabled binary that can accomplish container startup - and drop
 privileges completely as soon as practical.
 
-Privilege elevation inside a Singularity container is impossible (in theory ;): to be root inside,
-you have to be root outside. And users don't need explicit root
-access to execute existing containers]
 
+---
+
+# Singularity
+
+Privilege elevation inside a Singularity container is impossible (in theory ;): to be root inside,
+you have to be root outside.
+
+Users don't need explicit root access to execute existing containers
+
+Singularity automatically maps the user IDs . All the processes inside the container will
+run with the same user ID as the user executing the container. This means
+that also the files generated inside the container will have the right access permissions outside
+the container.
 
 ---
 
@@ -552,9 +570,9 @@ user@laptop:~/singularity-vm$ vagrant ssh -c /bin/bash <<EOF
     sudo apt-get -y install build-essential squashfs-tools curl git sudo man \
     vim autoconf libtool emacs24-nox python bash-completion libarchive-dev
     mkdir ~/src/ && cd ~/src/
-    wget https://github.com/singularityware/singularity/archive/2.5.1.tar.gz
-    tar xvf 2.5.1.tar.gz
-    cd singularity-2.5.1/
+    wget https://github.com/singularityware/singularity/archive/2.6.0.tar.gz
+    tar xvf 2.6.0.tar.gz
+    cd singularity-2.6.0/
     ./autogen.sh
     ./configure --prefix=/usr/local
     make
@@ -562,7 +580,7 @@ user@laptop:~/singularity-vm$ vagrant ssh -c /bin/bash <<EOF
     sudo ln -s /usr/local/etc/bash_completion.d/singularity /etc/profile.d/singularity.sh
 EOF
 ```
-Check the [official docs](http://singularity.lbl.gov/install-linux) if you want to
+Check the [official docs](https://www.sylabs.io/guides/2.6/user-guide/installation.html#install-on-linux) if you want to
 create a RPM or DEB package for your distribution (not needed for this course)
 
 ---
@@ -578,7 +596,7 @@ user@laptop:~$ cd ~/singularity-vm/
 user@laptop:~/singularity-vm$ vagrant ssh
 
 vagrant@vm:~$ singularity --version
-2.5-dist
+2.6.0-dist
 ```
 
 The general format of Singularity commands is:
@@ -597,15 +615,16 @@ You can find the configuration of Singularity under `/usr/local/etc/singularity`
 
 # Container images
 
-A Singularity image is, for practical purposes, a filesystem tree
-  that will be presented to the applications running inside it.
+A container needs to be somehow bootstrapped to contain a base
+  operating system before further modifications can be made.
+
+A container image is a filesystem tree that will be presented 
+  to the applications running inside it.
 
 A Docker container is built with a series of _layers_ that are
   stacked upon each other to form the filesystem. Singularity
   collapses those into a single, portable file.
 
-A container needs to be somehow bootstrapped to contain a base
-  operating system before further modifications can be made.
 
 <!--
 
@@ -618,7 +637,7 @@ vagrant@vm:~$ singularity pull docker://biocontainers/samtools
 Docker image path: index.docker.io/biocontainers/samtools:latest
 Importing: base Singularity environment
 Building Singularity image...
-Singularity container built: ./samtools.img
+Singularity container built: ./samtools.simg
 
 vagrant@vm:~$ singularity run samtools.img
 Program: samtools (Tools for alignments in the SAM format)
@@ -693,7 +712,7 @@ Importing: /home/vagrant/.singularity/metadata/sha256:b4d98049dd466efa5cfbf4b07a
 WARNING: Building container as an unprivileged user. If you run this container as root
 WARNING: it may be missing some functionality.
 Building Singularity image...
-Singularity container built: ./centos-6.img
+Singularity container built: ./centos-6.simg
 Cleaning up...
 ```
 ]
@@ -710,10 +729,10 @@ To test our freshly-created container, we can invoke an interactive shell
   to explore it with .highlight[`shell`]:
 
 ```terminal
-vagrant@vm:~$ singularity shell centos-6.img
+vagrant@vm:~$ singularity shell centos-6.simg
 Singularity: Invoking an interactive shell within container...
 
-Singularity centos-6.img:~>
+Singularity centos-6.simg:~>
 ```
 
 At this point, you're within the environment of the container.
@@ -721,8 +740,8 @@ At this point, you're within the environment of the container.
 We can verify we're "running" CentOS:
 
 ```terminal
-Singularity centos-6.img:~> cat /etc/centos-release
-CentOS release 6.9 (Final)
+Singularity centos-6.simg:~> cat /etc/centos-release
+CentOS release 6.10 (Final)
 ```
 
 ---
@@ -732,7 +751,10 @@ CentOS release 6.9 (Final)
 Inside the container, we are the same user:
 
 ```terminal
-Singularity centos-6.img:~> whoami
+Singularity centos-6.simg:~> whoami
+vagrant
+
+Singularity centos-6.simg:~> groups
 vagrant
 ```
 
@@ -750,21 +772,21 @@ If we launch `singularity` with `sudo`, we would be `root` inside the container.
 
 ---
 
-# Default mounts
+# Default folders mounts
 
-.small[Additionally, our home folder, and the folder we've invoked Singularity from,
+.small[Additionally, your home folder and the folder we've invoked Singularity from
 are accessible inside the container (by default):
 ```
-Singularity centos-6.img:~> ls ~
-centos-6.img  src
+Singularity centos-6.simg:~> ls ~
+centos-6.simg  src
 ```
 
 We have access to the bound folders with the same rights as outside,
   so we can for example write to:
 
 ```
-Singularity centos-6.img:~> touch ~/test_container
-Singularity centos-6.img:~> exit
+Singularity centos-6.simg:~> touch ~/test_container
+Singularity centos-6.simg:~> exit
 vagrant@vm:~$ ls ~/test_container
 /home/vagrant/test_container
 ```
@@ -776,13 +798,29 @@ note for sysadmins: Check `/usr/local/etc/singularity/singularity.conf` for defa
 ]
 ---
 
+# Custom folder mounts
+
+You can mount custom folders inside the container using the `--bind` flag
+
+```terminal
+vagrant@vm:~$ touch /var/tmp/file.dummy
+
+vagrant@vm:~$ singularity shell -B /var/tmp:rw centos-6.simg 
+Singularity: Invoking an interactive shell within container...
+
+Singularity centos-6.simg:~> ls /var/tmp/
+file.dummy
+```
+
+---
+
 # Running a command directly
 
 Besides the interactive shell, we can execute any command
   inside the container directly with .highlight[`exec`]:
 
 ```
-vagrant@vm:~$ singularity exec centos-6.img cat /etc/centos-release
+vagrant@vm:~$ singularity exec centos-6.simg cat /etc/centos-release
 CentOS release 6.9 (Final)
 ```
 
@@ -798,15 +836,15 @@ Standard input/output are processed as normal by Singularity.
 You can redirect them:
 
 ```
-vagrant@vm:~$ singularity exec centos-6.img echo Boo! > ~/test_container
-vagrant@vm:~$ singularity exec centos-6.img cat < ~/test_container
+vagrant@vm:~$ singularity exec centos-6.simg echo Boo! > ~/test_container
+vagrant@vm:~$ singularity exec centos-6.simg cat < ~/test_container
 Boo!
 ```
 
 You can use containers in pipelines:
 
 ```
-$ singularity exec centos-6.img echo Boo! | singularity exec centos-6.img cat
+$ singularity exec centos-6.simg echo Boo! | singularity exec centos-6.simg cat
 Boo!
 ```
 
@@ -831,10 +869,10 @@ module load Singularity/2.4
 RefGenome='~/scicore-pipeline2-input-data/RefGenome/igenomes/Saccharomyces_cerevisiae/Ensembl/R64-1-1/Sequence/'
 
 echo 'SAM to sorted BAM...'
-singularity exec pipeline2.img samtools view -bS output/bowtie2/yeast_reseq_ds-bt2aln.sam | singularity exec pipeline2.img samtools sort - --threads ${SLURM_CPUS_PER_TASK} -o output/samtools/yeast_reseq_ds-bt2aln.s.bam
+singularity exec pipeline2.simg samtools view -bS output/bowtie2/yeast_reseq_ds-bt2aln.sam | singularity exec pipeline2.simg samtools sort - --threads ${SLURM_CPUS_PER_TASK} -o output/samtools/yeast_reseq_ds-bt2aln.s.bam
 
 echo 'calling variants with FreeBayes...'
-singularity exec pipeline2.img freebayes -f $RefGenome/WholeGenomeFasta/genome.fa output/samtools/yeast_reseq_ds-bt2aln.s.bam > output/freebayes/yeast_reseq_ds-bt2aln.s.vcf
+singularity exec pipeline2.simg freebayes -f $RefGenome/WholeGenomeFasta/genome.fa output/samtools/yeast_reseq_ds-bt2aln.s.bam > output/freebayes/yeast_reseq_ds-bt2aln.s.vcf
 
 ```
 
@@ -845,13 +883,13 @@ singularity exec pipeline2.img freebayes -f $RefGenome/WholeGenomeFasta/genome.f
 
 ### Option 1: Create a writable singularity image for development
 
-.small[First create an [empty writable image](http://singularity.lbl.gov/docs-build-container#--writable) 2048MB in size and initialize it with a centos7 docker image
+.small[First create an [empty writable image](https://www.sylabs.io/guides/2.6/user-guide/quick_start.html#writable-image) 2048MB in size and initialize it with a centos7 docker image
 
 ```
-vagrant@vm:~$ sudo singularity image.create --size 2048 centos7.img
-vagrant@vm:~$ sudo singularity build --writable centos7.img docker://centos:7
-vagrant@vm:~$ sudo singularity shell --writable centos7.img
-Singularity centos7.img:~> whoami
+vagrant@vm:~$ sudo singularity image.create --size 2048 centos7.simg
+vagrant@vm:~$ sudo singularity build --writable centos7.simg docker://centos:7
+vagrant@vm:~$ sudo singularity shell --writable centos7.simg
+Singularity centos7.simg:~> whoami
 root
 ```
 
@@ -860,8 +898,8 @@ It's not available in the default distribution,
 we will need to enable a community repository and install it:
 
 ```
-Singularity centos7.img:~> yum -y --enablerepo=extras install epel-release
-Singularity centos7.img:~> yum -y install fortune-mod
+Singularity centos7.simg:~> yum -y --enablerepo=extras install epel-release
+Singularity centos7.simg:~> yum -y install fortune-mod
 ```
 
 .exercise[
@@ -875,10 +913,10 @@ Singularity centos7.img:~> yum -y install fortune-mod
 
 ### Option 2: Create a sandbox environment for development
 
-.small[Another approach is to create a [sandbox](http://singularity.lbl.gov/docs-build-container#--sandbox) for development.
+.small[Another approach is to create a [sandbox](https://www.sylabs.io/guides/2.6/user-guide/quick_start.html#sandbox-directory) for development.
 This is the approach recommended by the singularity developers.
 
-A [sandbox](http://singularity.lbl.gov/docs-build-container#--sandbox) is just a plain folder which contains all the files of the container.
+A [sandbox](https://www.sylabs.io/guides/2.6/user-guide/quick_start.html#sandbox-directory) is just a plain folder which contains all the files of the container.
 
 One of the advantages of this approach is that you don't need to define a fixed size in advance.
 ]
@@ -905,7 +943,7 @@ A container can have a "default" command which is run without specifying it.
 Inside the container, it's `/singularity`. Let's try modifying it:
 
 ```
-vagrant@vm:~$ sudo singularity exec -w centos7.img vi /singularity
+vagrant@vm:~$ sudo singularity exec -w centos7.simg vi /singularity
 ```
 
 By default you'll see the following:
@@ -938,10 +976,10 @@ Now we can invoke it with .highlight[`run`] or even by
   .highlight[running the image]:
 
 ```terminal
-vagrant@vm:~$ singularity run centos7.img
+vagrant@vm:~$ singularity run centos7.simg
 [..some wisdom or humor..]
 
-vagrant@vm:~$ ./centos7.img
+vagrant@vm:~$ ./centos7.simg
 [..some more wisdom or humor..]
 ```
 
@@ -952,7 +990,7 @@ vagrant@vm:~$ ./centos7.img
 Instead of taking some base image and making changes to it by hand,
   we want to make this build process reproducible.
 
-This is achieved with [singularity recipes](http://singularity.lbl.gov/docs-recipes)
+This is achieved with [singularity recipes](https://www.sylabs.io/guides/2.6/user-guide/quick_start.html#singularity-recipes)
 
 Let's try to retrace out steps to obtain a fortune-telling CentOS container.
 
@@ -964,7 +1002,7 @@ Let's try to retrace out steps to obtain a fortune-telling CentOS container.
 
 # Bootstrapping
 
-The definition file starts with a [header section](http://singularity.lbl.gov/docs-recipes#header).
+The definition file starts with a [header section](https://www.sylabs.io/guides/2.6/user-guide/container_recipes.html#header).
 
 The key part of it is the `Bootstrap:` configuration.
 
@@ -986,12 +1024,12 @@ From: centos:7
 
 There are 2 sections for setup commands (essentially shell scripts):
 
-1. [setup](http://singularity.lbl.gov/docs-recipes#setup) for commands to be executed .highlight[outside the container].
+1. [setup](https://www.sylabs.io/guides/2.6/user-guide/container_recipes.html#setup) for commands to be executed .highlight[outside the container].
 
   You can use `$SINGULARITY_ROOTFS` to access the container's filesystem,
     as it is mounted on the host during the build.
 
-2. [post](http://singularity.lbl.gov/docs-recipes#post) for commands to be executed .highlight[inside] the container.
+2. [post](https://www.sylabs.io/guides/2.6/user-guide/container_recipes.html#post) for commands to be executed .highlight[inside] the container.
 
   This is a good place to set up the OS, such as installing packages.
 
@@ -1018,7 +1056,7 @@ From: centos:7
 
 # Adding files to the container
 
-An additional section, [files](http://singularity.lbl.gov/docs-recipes#files), allows to copy files or folders to the container.
+An additional section, [files](https://www.sylabs.io/guides/2.6/user-guide/container_recipes.html#files), allows to copy files or folders to the container.
 
 We won't be using it here, but the format is as follows (like `cp`, but destination is inside):
 
@@ -1036,7 +1074,7 @@ Note that this happens _after_ `%post`. If you need the files earlier, copy them
 
 You can specify a script to be sourced when something is run in the container.
 
-This goes to the [environment section](http://singularity.lbl.gov/docs-recipes#environment). Treat it like `.bash_profile`.
+This goes to the [environment section](https://www.sylabs.io/guides/2.6/user-guide/container_recipes.html#environment). Treat it like `.bash_profile`.
 
 ```
 %environment
@@ -1045,7 +1083,7 @@ This goes to the [environment section](http://singularity.lbl.gov/docs-recipes#e
 
 All the environment is defined in profile files in folder `/.singularity.d/env/` inside the container.
 
-Note that the host environment variables are passed on by default as well, unless `-e` is specified.
+Note that the host environment variables are passed on by default as well, unless `-e | --cleanenv` is specified.
 
 .small[Feel free to explore the contents of folder `/.singularity.d/` ;)]
 
@@ -1053,7 +1091,7 @@ Note that the host environment variables are passed on by default as well, unles
 
 # Setting up the runscript
 
-The runscript (`/singularity`) is specified in the [runscript](http://singularity.lbl.gov/docs-recipes#runscript) section.
+The runscript (`/singularity`) is specified in the [runscript](https://www.sylabs.io/guides/2.6/user-guide/container_recipes.html#runscript) section.
 
 Let's use the file we copied at `%setup` and run `fortune`:
 
@@ -1071,7 +1109,7 @@ Let's use the file we copied at `%setup` and run `fortune`:
 You can specify commands to be run at the end of the build process inside the container
   to perform sanity checks.
 
-Use [test](http://singularity.lbl.gov/docs-recipes#test) section for this:
+Use [test](https://www.sylabs.io/guides/2.6/user-guide/container_recipes.html#test) section for this:
 
 ```
 %test
@@ -1117,10 +1155,10 @@ From: centos:7
 
 # Building a container from definition file
 
-[build](http://singularity.lbl.gov/docs-build-container) the container using the definition (.highlight[requires root]):
+[build](https://www.sylabs.io/guides/2.6/user-guide/build_a_container.html) the container using the definition (.highlight[requires root]):
 
 ```
-vagrant@vm:~$ sudo singularity build fortune.img fortune.def
+vagrant@vm:~$ sudo singularity build fortune.simg fortune.def
 ```
 
 .exercise[
@@ -1202,7 +1240,7 @@ See `singularity help run` for more information.
 
 module load Singularity/2.4
 
-singularity exec pipeline2.img samtools view -bS yeast_reseq_ds-bt2aln.sam | singularity exec pipeline2.img samtools sort - --threads ${SLURM_CPUS_PER_TASK} -o yeast_reseq_ds-bt2aln.s.bam
+singularity exec pipeline2.simg samtools view -bS yeast_reseq_ds-bt2aln.sam | singularity exec pipeline2.simg samtools sort - --threads ${SLURM_CPUS_PER_TASK} -o yeast_reseq_ds-bt2aln.s.bam
 
 ```
 
